@@ -26,9 +26,6 @@ public:
 
 
 private:
-	// Opcodes on CHIP-8 are two bytes long
-	uint16_t m_opcode;
-
 	// Hardware CHIP-8 is on typically has 4096 8-bit memory locations
 	uint8_t m_memory[CH8_MEM_SIZE];
 
@@ -41,7 +38,7 @@ private:
 	// Program Counter
 	uint16_t m_pc;
 
-	// Stack with 48 bytes for up to 24 levels of nesting
+	// Stack for calling subroutines with 48 bytes for up to 24 levels of nesting
 	uint16_t m_stack[STACK_SIZE];
 
 	// Stack Pointer
