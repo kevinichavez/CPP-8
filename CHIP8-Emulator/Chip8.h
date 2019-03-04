@@ -61,4 +61,7 @@ private:
 
 	// Clear the screen
 	void clearDisp();
+
+	// Increment program counter
+	void incrPC() { m_pc += 2; }
 };
