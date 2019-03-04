@@ -20,27 +20,51 @@ const uint16_t CH8_FONTSET[80] = {
 };
 
 Chip8::Chip8() {
-	for (int i = 0; i < 0x200; i++)				// Clear first 0x200 bytes of memory
+	// Clear first 0x200 bytes of memory
+	for (int i = 0; i < 0x200; i++)
 		m_memory[i] = 0;
-	for (int i = 0; i < 80; i++)				// Load in fontset
+
+	// Load in fontset
+	for (int i = 0; i < 80; i++)
 		m_memory[i] = CH8_FONTSET[i];
 }
 
 void Chip8::init() {
-	m_pc = 0x200;								// Program counter starts at 0x200
-	m_opcode = 0;								// Reset opcode
-	m_I = 0;									// Reset index reg
-	m_sp = 0;									// Reset stack pointer
-	clearDisp();								// Clear display
-	for (int i = 0; i < 0xF; i++)				// Clear registers
+	// Program counter starts at 0x200
+	m_pc = 0x200;
+
+	// Reset opcode
+	m_opcode = 0;
+	
+	// Reset index register
+	m_I = 0;
+
+	// Reset stack pointer
+	m_sp = 0;
+
+	// Clear display
+	clearDisp();
+
+	// Clear registers
+	for (int i = 0; i < 0xF; i++)
 		m_V[i] = 0;
-	for (int i = 0; i < STACK_SIZE; i++)		// Clear stack
+
+	// Clear stack
+	for (int i = 0; i < STACK_SIZE; i++)
 		m_stack[i] = 0;
-	for (int i = m_pc; i < CH8_MEM_SIZE; i++)	// Clear memory
+
+	// Clear memory
+	for (int i = m_pc; i < CH8_MEM_SIZE; i++)
 		m_memory[i] = 0;
-	m_dTimer = 0;								// Reset delay timer
-	m_sTimer = 0;								// Reset sound timer
-	for (int i = 0; i < 0xF; i++)				// Reset key state
+
+	// Reset delay timer
+	m_dTimer = 0;
+
+	// Reset sound timer
+	m_sTimer = 0;
+
+	// Reset key state
+	for (int i = 0; i < 0xF; i++)
 		m_keys[i] = false;
 }
 
