@@ -235,13 +235,105 @@ void Chip8::emulateCycle() {
 		break;
 
 	case 0xD000:
-		// Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels
+		// DXYN: Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels
 		// Each row of 8 pixels is read as bit-coded starting from memory location I
 		// I value doesn’t change after the execution of this instruction
 		// VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesn’t happen
 		break;
 
 	case 0xE000:
+		switch (opcode & 0x00FF) {
+		case 0x009E:
+			// EX9E: Skips the next instruction if the key stored in VX is pressed
+			// TODO: Implement this
+			break;
+			
+		case 0x00A1:
+			// EXA1: Skips the next instruction if the key stored in VX isn't pressed
+			// TODO: Implement this
+			break;
+
+		default:
+			unknownOpcode(opcode);
+		}
+		break;
+
+	case 0xF000:
+		switch (opcode & 0x00FF) {
+		case 0x0007:
+			// FX07: Sets VX to the value of the delay timer
+			m_V[x] = m_dTimer;
+			incrPC();
+			break;
+
+		case 0x000A:
+			// FX0A: A key press is awaited, and then stored in VX. Halt all instruction until key press
+			bool keyIsPressed = false;
+			for (int i = 0; i < 0xF; i++)
+				if (m_keys[i]) {
+					keyIsPressed = true;
+					m_V[x] = m_keys[i];
+					i = 0xF;
+				}
+			if (!keyIsPressed)
+				return;
+			incrPC();
+			break;
+
+		case 0x0015:
+			// FX15: Sets the delay timer to VX
+			m_dTimer = m_V[x];
+			incrPC();
+			break;
+
+		case 0x0018:
+			// FX18: Sets the sound timer to VX
+			m_sTimer = m_V[x];
+			incrPC();
+			break;
+
+		case 0x001E:
+			// FX1E: Adds VX to I. VF is set to 1 when there is a range overflow and 0 when there isn't
+			int vxisum = m_V[x] + m_I;
+			if (vxisum > 0x0FFF)
+				m_V[0xF] = 1;
+			else m_V[0xF] = 0;
+			m_I = vxisum;
+			incrPC();
+			break;
+
+		case 0x0029:
+			// FX29: Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font
+			// TODO: Implement FX29
+			incrPC();
+			break;
+
+		case 0x0033:
+			// FX33: Take the decimal representation of VX, place the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2
+			m_memory[m_I] = m_V[x] / 100;
+			m_memory[m_I + 1] = (m_V[x] % 100 ) / 10;
+			m_memory[m_I + 2] = (m_V[x] % 100) % 10;
+			incrPC();
+			break;
+
+		case 0x0055:
+			// FX55: Stores V0 to VX (including VX) in memory starting at address I. The offset from I is increased by 1 for each value written, but I itself is left unmodified
+			for (int i = 0; i <= x; i++)
+				m_memory[m_I + i] = m_V[i];
+			incrPC();
+			break;
+
+		case 0x0065:
+			// FX65: Fills V0 to VX (including VX) with values from memory starting at address I. The offset from I is increased by 1 for each value written, but I itself is left unmodified
+			for (int i = 0; i <= x; i++)
+				m_V[i] = m_memory[m_I + i];
+			incrPC();
+			break;
+
+		default:
+			unknownOpcode(opcode);
+		}
+		break;
 
 
 	default:

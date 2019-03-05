@@ -30,7 +30,7 @@ private:
 	uint8_t m_memory[CH8_MEM_SIZE];
 
 	// CHIP-8 has 16 8-bit data registers named V0 through VF
-	uint8_t m_V[0xF];
+	uint8_t m_V[16];
 
 	// CHIP-8 has address register I which is 16 bits wide
 	uint16_t m_I;
@@ -57,7 +57,7 @@ private:
 	bool m_gfx[CH8_RESOLUTION];
 
 	// Store whether key is currently being pressed
-	bool m_keys[0xF];
+	bool m_keys[16];
 
 	// Clear the screen
 	void clearDisp();
