@@ -113,8 +113,52 @@ void Chip8::emulateCycle() {
 		if (m_V[x] == opcode & 0x00FF)
 			incrPC();
 		incrPC();
+		break;
 
+	case 0x4000:
+		// 4XNN: Skips the next instruction if VX doesn't equal NN
+		if (m_V[x] != opcode & 0x00FF)
+			incrPC();
+		incrPC();
+		break;
 
+	case 0x5000:
+		// 5XY0: Skips the next instruction if VX equals VY
+		if (m_V[x] == m_V[y])
+			incrPC();
+		incrPC();
+		break;
+
+	case 0x6000:
+		// 6XNN: Sets VX to NN
+		m_V[x] = opcode & 0x00FF;
+		incrPC();
+		break;
+
+	case 0x7000:
+		// 7XNN: Adds NN to VX (carry flag unchanged)
+		m_V[x] += (opcode & 0x00FF);
+		incrPC();
+		break;
+
+	case 0x8000:
+		switch (opcode & 0x000F) {
+		case 0x0000:
+			// 8XY0: Sets VX to value of VY
+			m_V[x] = m_V[y];
+			incrPC();
+			break;
+
+		case 0x0001:
+			// 8XY1: Sets VX to VX OR VY
+			m_V[x] |= m_V[y];
+			incrPC();
+			break;
+
+		default:
+			unknownOpcode(opcode);
+		}
+		break;
 
 	case 0xA000:
 		// ANNN: Sets I to the address NNN
