@@ -1,6 +1,8 @@
 #include "Chip8.h"
 #include <iostream>
 
+using namespace std;
+
 const uint16_t CH8_FONTSET[80] = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
   0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -93,7 +95,7 @@ void Chip8::emulateCycle() {
 			break;
 
 		default:
-			std::cerr << "Trying to call RCA 1802 at " << std::hex << (0x0FFF & opcode) << std::dec << " (?)" << std::endl;
+			cerr << "Trying to call RCA 1802 at " << hex << (0x0FFF & opcode) << dec << " (?)" << endl;
 		}
 		break;
 
@@ -239,18 +241,23 @@ void Chip8::emulateCycle() {
 		// Each row of 8 pixels is read as bit-coded starting from memory location I
 		// I value doesn’t change after the execution of this instruction
 		// VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesn’t happen
+		// TODO: Implement DXYN
 		break;
 
 	case 0xE000:
 		switch (opcode & 0x00FF) {
 		case 0x009E:
 			// EX9E: Skips the next instruction if the key stored in VX is pressed
-			// TODO: Implement this
+			if (m_keys[m_V[x]])
+				incrPC();
+			incrPC();
 			break;
 			
 		case 0x00A1:
 			// EXA1: Skips the next instruction if the key stored in VX isn't pressed
-			// TODO: Implement this
+			if (!m_keys[m_V[x]])
+				incrPC();
+			incrPC();
 			break;
 
 		default:
@@ -335,11 +342,19 @@ void Chip8::emulateCycle() {
 		}
 		break;
 
-
 	default:
 		unknownOpcode(opcode);
 	}
 
+	// Update timers
+	if (m_dTimer > 0)
+		m_dTimer--;
+	// TODO: Implement actual beeping noise rather than text
+	if (m_sTimer) {
+		if (m_sTimer == 1)
+			cerr << "BEEP!\n";
+		m_sTimer--;
+	}
 
 }
 
@@ -349,5 +364,5 @@ void Chip8::clearDisp() {
 }
 
 void unknownOpcode(uint16_t opcode) {
-	std::cerr << "Unknown opcode: " << std::hex << opcode << std::dec << std::endl;
+	cerr << "Unknown opcode: " << std::hex << opcode << std::dec << std::endl;
 }
