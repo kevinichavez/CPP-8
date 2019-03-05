@@ -208,6 +208,8 @@ void Chip8::emulateCycle() {
 			// 8XYE: Stores the most significant bit of VX in VF and then shifts VX to the left by 1
 			m_V[0xF] = m_V[x] >> 7;
 			m_V[x] <<= 1;
+			incrPC();
+			break;
 
 		default:
 			unknownOpcode(opcode);
@@ -219,6 +221,28 @@ void Chip8::emulateCycle() {
 		m_I = opcode & 0x0FFF;
 		incrPC();
 		break;
+
+	case 0xB000:
+		// BNNN: Jumps to the address NNN plus V0
+		m_pc = m_V[0x0] + (opcode & 0x0FFF);
+		break;
+
+	case 0xC000:
+		// CXNN: Sets VX to the result of a bitwise AND operation on a random number between 0 and 255 and NN
+		uint8_t rng = rand();
+		m_V[x] = rng & (opcode & 0x00FF);
+		incrPC();
+		break;
+
+	case 0xD000:
+		// Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels
+		// Each row of 8 pixels is read as bit-coded starting from memory location I
+		// I value doesn’t change after the execution of this instruction
+		// VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesn’t happen
+		break;
+
+	case 0xE000:
+
 
 	default:
 		unknownOpcode(opcode);
