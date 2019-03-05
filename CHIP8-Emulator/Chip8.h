@@ -2,8 +2,10 @@
 
 #include <cstdint>
 
-const int CH8_RESOLUTION = 64 * 32;
-const int STACK_SIZE = 24;
+const int CH8_WIDTH = 64;
+const int CH8_HEIGHT = 32;
+const int CH8_RESOLUTION = CH8_WIDTH * CH8_HEIGHT;
+const int CH8_STACK_SIZE = 24;
 const int CH8_MEM_SIZE = 4096;
 
 class Chip8 {
@@ -39,7 +41,7 @@ private:
 	uint16_t m_pc;
 
 	// Stack for calling subroutines with 48 bytes for up to 24 levels of nesting
-	uint16_t m_stack[STACK_SIZE];
+	uint16_t m_stack[CH8_STACK_SIZE];
 
 	// Stack Pointer
 	uint8_t m_sp;
