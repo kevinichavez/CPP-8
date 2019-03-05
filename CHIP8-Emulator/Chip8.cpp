@@ -155,6 +155,60 @@ void Chip8::emulateCycle() {
 			incrPC();
 			break;
 
+		case 0x0002:
+			// 8XY2: Sets VX to VX AND VY
+			m_V[x] &= m_V[y];
+			incrPC();
+			break;
+
+		case 0x0003:
+			// 8XY3: Sets VX to VX XOR VY
+			m_V[x] ^= m_V[y];
+			incrPC();
+			break;
+
+		case 0x0004:
+			// 8XY4: Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't
+			uint8_t sum = m_V[x] + m_V[y];
+			if (sum < m_V[x] || sum < m_V[y])
+				m_V[0xF] = 1;
+			else m_V[0xF] = 0;
+			m_V[x] = sum;
+			incrPC();
+			break;
+
+		case 0x0005:
+			// 8XY5: VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't
+			uint8_t dif = m_V[x] - m_V[y];
+			if (dif > m_V[x])
+				m_V[0xF] = 0;
+			else m_V[0xF] = 1;
+			m_V[x] = dif;
+			incrPC();
+			break;
+
+		case 0x0006:
+			// 8XY6: Stores the least significant bit of VX in VF and then shifts VX to the right by 1
+			m_V[0xF] = m_V[x] & 0x01;
+			m_V[x] >>= 1;
+			incrPC();
+			break;
+
+		case 0x0007:
+			// 8XY7: Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't
+			uint8_t diff = m_V[y] - m_V[x];
+			if (diff > m_V[y])
+				m_V[0xF] = 0;
+			else m_V[0xF] = 1;
+			m_V[x] = diff;
+			incrPC();
+			break;
+
+		case 0x000E:
+			// 8XYE: Stores the most significant bit of VX in VF and then shifts VX to the left by 1
+			m_V[0xF] = m_V[x] >> 7;
+			m_V[x] <<= 1;
+
 		default:
 			unknownOpcode(opcode);
 		}
