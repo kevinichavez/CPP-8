@@ -218,6 +218,12 @@ void Chip8::emulateCycle() {
 		}
 		break;
 
+	case 0x9000:
+		// 9XY0: Skips the next instruction if VX doesn't equal VY
+		if (m_V[x] != m_V[y])
+			incrPC();
+		incrPC();
+
 	case 0xA000:
 		// ANNN: Sets I to the address NNN
 		m_I = opcode & 0x0FFF;
@@ -244,9 +250,11 @@ void Chip8::emulateCycle() {
 		// TODO: Implement DXYN
 
 		// Get height of sprite
-		uint16_t height = opcode & 0x000F;
+		unsigned short height = opcode & 0x000F;
 
+		// Reset VF Register
 		m_V[0xF] = 0;
+
 
 		incrPC();
 		break;
