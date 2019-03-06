@@ -1,8 +1,6 @@
 #include "Chip8.h"
 #include <iostream>
 
-using namespace std;
-
 const uint8_t CH8_FONTSET[80] = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
   0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -98,7 +96,7 @@ void Chip8::emulateCycle() {
 			break;
 
 		default:
-			cerr << "Trying to call RCA 1802 at " << hex << (0x0FFF & opcode) << dec << " (?)" << endl;
+			std::cerr << "Trying to call RCA 1802 at " << std::hex << (0x0FFF & opcode) << std::dec << " (?)" << std::endl;
 		}
 		break;
 
@@ -409,10 +407,15 @@ void Chip8::emulateCycle() {
 	// TODO: Implement actual beeping noise rather than text
 	if (m_sTimer) {
 		if (m_sTimer == 1)
-			cerr << "BEEP!\n";
+			std::cerr << "BEEP!\n";
 		m_sTimer--;
 	}
 
+}
+
+int Chip8::loadGame(std::string name) {
+	// TODO: Implement loadgame
+	return 0;
 }
 
 void Chip8::clearDisp() {
@@ -422,5 +425,5 @@ void Chip8::clearDisp() {
 }
 
 void unknownOpcode(uint16_t opcode) {
-	cerr << "Unknown opcode: " << std::hex << opcode << std::dec << std::endl;
+	std::cerr << "Unknown opcode: " << std::hex << opcode << std::dec << std::endl;
 }

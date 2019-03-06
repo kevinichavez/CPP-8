@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 const int CH8_WIDTH = 64;
 const int CH8_HEIGHT = 32;
@@ -27,6 +28,9 @@ public:
 
 	// Returns pointer to first address of graphics array
 	const uint8_t* getGfxArray() const { return &m_gfx[0][0]; }
+
+	// Loads ROM file into memory
+	int loadGame(std::string name);
 
 	// Turn sprite wrapping to the other side of the screen on
 	void enableSpriteWrap() { m_wrapFlag = true; }
