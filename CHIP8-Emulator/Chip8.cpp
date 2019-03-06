@@ -52,7 +52,7 @@ void Chip8::init() {
 		m_V[i] = 0;
 
 	// Clear stack
-	for (int i = 0; i < STACK_SIZE; i++)
+	for (int i = 0; i < CH8_STACK_SIZE; i++)
 		m_stack[i] = 0;
 
 	// Clear memory
@@ -242,6 +242,13 @@ void Chip8::emulateCycle() {
 		// I value doesn’t change after the execution of this instruction
 		// VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesn’t happen
 		// TODO: Implement DXYN
+
+		// Get height of sprite
+		uint16_t height = opcode & 0x000F;
+
+		m_V[0xF] = 0;
+
+		incrPC();
 		break;
 
 	case 0xE000:

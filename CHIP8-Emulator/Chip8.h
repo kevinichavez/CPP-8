@@ -56,7 +56,7 @@ private:
 	bool m_drawFlag;
 
 	// Array that stores current state of pixels on 64 * 32 screen
-	uint8_t m_gfx[CH8_RESOLUTION];
+	bool m_gfx[CH8_RESOLUTION];
 
 	// Store whether key is currently being pressed
 	bool m_keys[16];
