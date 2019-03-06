@@ -6,7 +6,7 @@ const int CH8_WIDTH = 64;
 const int CH8_HEIGHT = 32;
 const int CH8_RESOLUTION = CH8_WIDTH * CH8_HEIGHT;
 const int CH8_STACK_SIZE = 24;
-const int CH8_MEM_SIZE = 4096;
+const int CH8_MEM_SIZE = 0x1000;
 
 class Chip8 {
 

@@ -75,8 +75,8 @@ void Chip8::emulateCycle() {
 	uint16_t opcode = (m_memory[m_pc] << 8) | m_memory[m_pc + 1];
 
 	// Get V register identifiers
-	int x = (opcode >> 8) & 0x000F;
-	int y = (opcode >> 4) & 0x000F;
+	uint8_t x = (opcode >> 8) & 0x0F;
+	uint8_t y = (opcode >> 4) & 0x0F;
 
 	// Decode opcode
 	switch (opcode & 0xF000) {
@@ -250,11 +250,15 @@ void Chip8::emulateCycle() {
 		// TODO: Implement DXYN
 
 		// Get height of sprite
-		unsigned short height = opcode & 0x000F;
+		uint8_t height = opcode & 0x0F;
 
-		// Reset VF Register
+		// Reset VF Register since we don't know if there was collision yet
 		m_V[0xF] = 0;
 
+		// Loop for number of rows the sprite takes up
+		for (int row = 0; row < height; row++) {
+			
+		}
 
 		incrPC();
 		break;
