@@ -122,7 +122,7 @@ void Chip8::emulateCycle() {
 
 	case 0x4000:
 		// 4XNN: Skips the next instruction if VX doesn't equal NN
-		if (m_V[x] != opcode & 0x00FF)
+		if (m_V[x] != (opcode & 0x00FF))
 			incrPC();
 		incrPC();
 		break;

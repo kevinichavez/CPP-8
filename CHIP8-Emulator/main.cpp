@@ -1,30 +1,33 @@
 #include <iostream>
 #include <ctime>
 #include "Chip8.h"
-#include <SDL.h>
 
-void drawScreen(Chip8 c);
+void drawScreen(const uint8_t*& c);
 
 int main(int argc, char *argv[]) {
 
 	// Seed random number generator
 	srand(time(0));
 
+
+
 	Chip8 chip;
 
 	chip.init();
 
-	while (true) {
+	const uint8_t* screen = chip.getGfxArray();
+
+	while (false) {
 		chip.emulateCycle();
 
 		if (chip.shouldDraw())
-			drawScreen(chip);
+			drawScreen(screen);
 
 	}
 
-
+	return 0;
 }
 
-void drawScreen(Chip8 c) {
+void drawScreen(const uint8_t*& c) {
 
 }

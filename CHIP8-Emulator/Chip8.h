@@ -20,10 +20,13 @@ public:
 	void emulateCycle();
 
 	// Get state of drawing flag
-	const bool shouldDraw() { return m_drawFlag; }
+	bool shouldDraw() const { return m_drawFlag; }
 
 	// Passes input to emulator
 	void setKeys();
+
+	// Returns pointer to first address of graphics array
+	const uint8_t* getGfxArray() const { return &m_gfx[0][0]; }
 
 	// Turn sprite wrapping to the other side of the screen on
 	void enableSpriteWrap() { m_wrapFlag = true; }
