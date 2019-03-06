@@ -4,7 +4,6 @@
 
 const int CH8_WIDTH = 64;
 const int CH8_HEIGHT = 32;
-const int CH8_RESOLUTION = CH8_WIDTH * CH8_HEIGHT;
 const int CH8_STACK_SIZE = 24;
 const int CH8_MEM_SIZE = 0x1000;
 
@@ -56,7 +55,7 @@ private:
 	bool m_drawFlag;
 
 	// Array that stores current state of pixels on 64 * 32 screen
-	bool m_gfx[CH8_RESOLUTION];
+	bool m_gfx[CH8_WIDTH][CH8_HEIGHT];
 
 	// Store whether key is currently being pressed
 	bool m_keys[16];

@@ -378,8 +378,9 @@ void Chip8::emulateCycle() {
 }
 
 void Chip8::clearDisp() {
-	for (int i = 0; i < CH8_RESOLUTION; i++)
-		m_gfx[i] = false;
+	for (int i = 0; i < CH8_WIDTH; i++)
+		for (int j = 0; j < CH8_HEIGHT; j++)
+			m_gfx[i][j] = false;
 }
 
 void unknownOpcode(uint16_t opcode) {
