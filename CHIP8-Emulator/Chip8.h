@@ -25,6 +25,11 @@ public:
 	// Passes input to emulator
 	void setKeys();
 
+	// Turn sprite wrapping to the other side of the screen on
+	void enableSpriteWrap() { m_wrapFlag = true; }
+
+	// Turn sprite wrapping off
+	void disableSpriteWrap() { m_wrapFlag = false; }
 
 private:
 	// Hardware CHIP-8 is on typically has 4096 8-bit memory locations
@@ -55,10 +60,13 @@ private:
 	bool m_drawFlag;
 
 	// Array that stores current state of pixels on 64 * 32 screen
-	bool m_gfx[CH8_WIDTH][CH8_HEIGHT];
+	uint8_t m_gfx[CH8_WIDTH][CH8_HEIGHT];
 
 	// Store whether key is currently being pressed
 	bool m_keys[16];
+
+	// Determines what should happen if sprite goes off screen
+	bool m_wrapFlag;
 
 	// Clear the screen
 	void clearDisp();

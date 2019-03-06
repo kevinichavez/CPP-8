@@ -68,6 +68,9 @@ void Chip8::init() {
 	// Reset key state
 	for (int i = 0; i < 0xF; i++)
 		m_keys[i] = false;
+
+	// Reset wrap flag
+	m_wrapFlag = false;
 }
 
 void Chip8::emulateCycle() {
@@ -247,17 +250,45 @@ void Chip8::emulateCycle() {
 		// Each row of 8 pixels is read as bit-coded starting from memory location I
 		// I value doesn’t change after the execution of this instruction
 		// VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesn’t happen
-		// TODO: Implement DXYN
 
 		// Get height of sprite
-		uint8_t height = opcode & 0x0F;
+		int height = opcode & 0x0F;
 
 		// Reset VF Register since we don't know if there was collision yet
 		m_V[0xF] = 0;
 
 		// Loop for number of rows the sprite takes up
 		for (int row = 0; row < height; row++) {
-			
+
+			// Get one row of sprite at a time
+			uint8_t spriteRow = m_memory[m_I + row];
+
+			// Each sprite is 8 pixels wide
+			for (int col = 0; col < 8; col++) {
+
+				// Get bit to check if it's set
+				uint8_t bit = spriteRow & (0x80 >> col);
+
+				// Check if bit is set
+				if (bit) {
+
+					// Check for wraparound
+					if (m_V[x] + col > CH8_WIDTH) {
+						if (m_wrapFlag) {
+							// TODO: Implement wrapping to other side of screen behavior
+						}
+						else continue;
+					}
+
+					// Check if bit is already set
+					if (m_gfx[m_V[x] + col][m_V[y + row]] == 1)
+						m_V[0xF] = 1;
+
+					// XOR the bit using 1 to flip it
+					m_gfx[m_V[x] + col][m_V[y + row]] ^= 1;
+				}
+
+			}
 		}
 
 		incrPC();
@@ -380,7 +411,7 @@ void Chip8::emulateCycle() {
 void Chip8::clearDisp() {
 	for (int i = 0; i < CH8_WIDTH; i++)
 		for (int j = 0; j < CH8_HEIGHT; j++)
-			m_gfx[i][j] = false;
+			m_gfx[i][j] = 0;
 }
 
 void unknownOpcode(uint16_t opcode) {
