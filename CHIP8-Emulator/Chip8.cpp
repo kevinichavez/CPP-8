@@ -3,7 +3,7 @@
 
 using namespace std;
 
-const uint16_t CH8_FONTSET[80] = {
+const uint8_t CH8_FONTSET[80] = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
   0x20, 0x60, 0x20, 0x20, 0x70, // 1
   0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -115,7 +115,7 @@ void Chip8::emulateCycle() {
 
 	case 0x3000:
 		// 3XNN: Skips the next instruction if VX equals NN
-		if (m_V[x] == opcode & 0x00FF)
+		if (m_V[x] == (opcode & 0x00FF))
 			incrPC();
 		incrPC();
 		break;
@@ -172,7 +172,7 @@ void Chip8::emulateCycle() {
 			incrPC();
 			break;
 
-		case 0x0004:
+		case 0x0004: {
 			// 8XY4: Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't
 			uint8_t sum = m_V[x] + m_V[y];
 			if (sum < m_V[x] || sum < m_V[y])
@@ -181,8 +181,9 @@ void Chip8::emulateCycle() {
 			m_V[x] = sum;
 			incrPC();
 			break;
+		}
 
-		case 0x0005:
+		case 0x0005: {
 			// 8XY5: VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't
 			uint8_t dif = m_V[x] - m_V[y];
 			if (dif > m_V[x])
@@ -191,6 +192,7 @@ void Chip8::emulateCycle() {
 			m_V[x] = dif;
 			incrPC();
 			break;
+		}
 
 		case 0x0006:
 			// 8XY6: Stores the least significant bit of VX in VF and then shifts VX to the right by 1
@@ -199,7 +201,7 @@ void Chip8::emulateCycle() {
 			incrPC();
 			break;
 
-		case 0x0007:
+		case 0x0007: {
 			// 8XY7: Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't
 			uint8_t diff = m_V[y] - m_V[x];
 			if (diff > m_V[y])
@@ -208,6 +210,7 @@ void Chip8::emulateCycle() {
 			m_V[x] = diff;
 			incrPC();
 			break;
+		}
 
 		case 0x000E:
 			// 8XYE: Stores the most significant bit of VX in VF and then shifts VX to the left by 1
@@ -238,14 +241,15 @@ void Chip8::emulateCycle() {
 		m_pc = m_V[0x0] + (opcode & 0x0FFF);
 		break;
 
-	case 0xC000:
+	case 0xC000: {
 		// CXNN: Sets VX to the result of a bitwise AND operation on a random number between 0 and 255 and NN
 		uint8_t rng = rand();
 		m_V[x] = rng & (opcode & 0x00FF);
 		incrPC();
 		break;
+	}
 
-	case 0xD000:
+	case 0xD000: {
 		// DXYN: Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels
 		// Each row of 8 pixels is read as bit-coded starting from memory location I
 		// I value doesn’t change after the execution of this instruction
@@ -293,6 +297,7 @@ void Chip8::emulateCycle() {
 
 		incrPC();
 		break;
+	}
 
 	case 0xE000:
 		switch (opcode & 0x00FF) {
@@ -323,7 +328,7 @@ void Chip8::emulateCycle() {
 			incrPC();
 			break;
 
-		case 0x000A:
+		case 0x000A: {
 			// FX0A: A key press is awaited, and then stored in VX. Halt all instruction until key press
 			bool keyIsPressed = false;
 			for (int i = 0; i < 0xF; i++)
@@ -336,6 +341,7 @@ void Chip8::emulateCycle() {
 				return;
 			incrPC();
 			break;
+		}
 
 		case 0x0015:
 			// FX15: Sets the delay timer to VX
@@ -349,7 +355,7 @@ void Chip8::emulateCycle() {
 			incrPC();
 			break;
 
-		case 0x001E:
+		case 0x001E: {
 			// FX1E: Adds VX to I. VF is set to 1 when there is a range overflow and 0 when there isn't
 			int vxisum = m_V[x] + m_I;
 			if (vxisum > 0x0FFF)
@@ -358,6 +364,7 @@ void Chip8::emulateCycle() {
 			m_I = vxisum;
 			incrPC();
 			break;
+		}
 
 		case 0x0029:
 			// FX29: Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font

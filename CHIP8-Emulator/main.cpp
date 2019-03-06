@@ -1,10 +1,11 @@
 #include <iostream>
 #include <ctime>
 #include "Chip8.h"
+#include <SDL.h>
 
-void drawScreen();
+void drawScreen(Chip8 c);
 
-int main() {
+int main(int argc, char *argv[]) {
 
 	// Seed random number generator
 	srand(time(0));
@@ -17,13 +18,13 @@ int main() {
 		chip.emulateCycle();
 
 		if (chip.shouldDraw())
-			drawScreen();
+			drawScreen(chip);
 
 	}
 
 
 }
 
-void drawScreen() {
+void drawScreen(Chip8 c) {
 
 }
