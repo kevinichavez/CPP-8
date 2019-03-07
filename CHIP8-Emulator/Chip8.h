@@ -32,6 +32,8 @@ public:
 	// Loads ROM file into memory
 	int loadRom(std::string name);
 
+	uint16_t getSoundTimer() const { return m_sTimer; }
+
 	// Turn sprite wrapping to the other side of the screen on
 	void enableSpriteWrap() { m_wrapFlag = true; }
 
