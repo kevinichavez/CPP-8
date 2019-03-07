@@ -1,5 +1,6 @@
 #include "Chip8.h"
 #include <iostream>
+#include <fstream>
 
 const uint8_t CH8_FONTSET[80] = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -72,6 +73,10 @@ void Chip8::init() {
 }
 
 void Chip8::emulateCycle() {
+
+	// Reset drawing flag
+	m_drawFlag = false;
+
 	// Get opcode
 	uint16_t opcode = (m_memory[m_pc] << 8) | m_memory[m_pc + 1];
 
@@ -86,6 +91,7 @@ void Chip8::emulateCycle() {
 		case 0x00E0:
 			// 00E0: Clears the screen
 			clearDisp();
+			m_drawFlag = true;
 			incrPC();
 			break;
 
@@ -293,6 +299,7 @@ void Chip8::emulateCycle() {
 			}
 		}
 
+		m_drawFlag = true;
 		incrPC();
 		break;
 	}
@@ -413,8 +420,37 @@ void Chip8::emulateCycle() {
 
 }
 
-int Chip8::loadGame(std::string name) {
-	// TODO: Implement loadgame
+int Chip8::loadRom(std::string name) {
+
+	// First 0x200 bytes reserved for interpretter (FONT files in this emulator's case)
+	const int MAX_ROM_SIZE = CH8_MEM_SIZE - 0x200;
+
+	char tempBuffer[MAX_ROM_SIZE];
+
+	// Read ROM file into memory
+	std::ifstream rom(name, std::ios::in | std::ios::binary);
+
+	// Check if file was read into stream correctly
+	if ((rom.rdstate() & std::ifstream::failbit) != 0 || (rom.rdstate() & std::ifstream::badbit) != 0) {
+		std::cerr << "Error opening " << name << std::endl;
+		return -1;
+	}
+
+	// Find file size
+	rom.seekg(0, std::ios_base::end);
+
+	if (rom.tellg() > MAX_ROM_SIZE) {
+		std::cerr << "File too large!";
+		return -2;
+	}
+
+	// Read file into temporary buffer
+	rom.read(tempBuffer, MAX_ROM_SIZE);
+
+	// Read into memory
+	for (int i = 0; i < MAX_ROM_SIZE; i++)
+		m_memory[0x200 + i] = tempBuffer[i];
+
 	return 0;
 }
 
