@@ -5,8 +5,6 @@
 #include "nfd.h"
 #include "Chip8.h"
 
-const int FPS = 60;
-
 void drawScreen(const Chip8 &c, SDL_Renderer *renderer, int scalex, int scaley);
 void setKeys(Chip8 &c, const uint8_t *ks, bool keys[]);
 
@@ -106,16 +104,17 @@ int main(int argc, char *argv[]) {
 	}
 
 	bool quit = false;
-	uint32_t timeStart, timeDelta;
-	while (!quit) {
+	uint32_t ticks = 0;
 
-		timeStart = SDL_GetTicks();
+	// TODO: Slow down emulation
+	while (!quit) {
 
 		// Update which keys are pressed on keyboard
 		SDL_PumpEvents();
 
-		// Go through one cycle of emulation
+		// Emulate one CPU cycle
 		chip.emulateCycle();
+		ticks++;
 
 		// Redraw the screen if CHIP-8 drawflag was set
 		if (chip.shouldDraw())
@@ -124,15 +123,11 @@ int main(int argc, char *argv[]) {
 		// Pass currently pressed keys to CHIP-8
 		setKeys(chip, keystate, keys);
 
-		// Check if user pressed X button
+		// Check if user pressed X button or escape
 		while (SDL_PollEvent(&e))
-			if (e.type == SDL_QUIT)
+			if (e.type == SDL_QUIT || e.type == SDLK_ESCAPE)
 				quit = true;
 
-		timeDelta = SDL_GetTicks() - timeStart;
-
-		if (1000.0 / FPS > timeDelta)
-			SDL_Delay(1000.0 / FPS - timeDelta);
 	}
 
 	// Destroy game window

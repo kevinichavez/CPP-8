@@ -295,7 +295,7 @@ void Chip8::emulateCycle() {
 						V[0xF] = 1;
 
 					// XOR the bit using 1 to flip it
-					gfx[V[x] + col][V[y + row]] ^= 1;
+					gfx[V[x] + col][V[y] + row] ^= 1;
 				}
 
 			}
@@ -383,7 +383,7 @@ void Chip8::emulateCycle() {
 			// FX33: Take the decimal representation of VX, place the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2
 			memory[I] = V[x] / 100;
 			memory[I + 1] = (V[x] % 100 ) / 10;
-			memory[I + 2] = (V[x] % 100) % 10;
+			memory[I + 2] = V[x] % 10;
 			incrPC();
 			break;
 
@@ -408,16 +408,6 @@ void Chip8::emulateCycle() {
 
 	default:
 		unknownOpcode(opcode);
-	}
-
-	// Update timers
-	if (dTimer > 0)
-		dTimer--;
-	// TODO: Implement actual beeping noise rather than text
-	if (sTimer) {
-		if (sTimer == 1)
-			std::cerr << "BEEP!\n";
-		sTimer--;
 	}
 
 }
@@ -475,6 +465,13 @@ int Chip8::loadRom(std::string name) {
 		memory[0x200 + i] = tempBuffer[i];
 
 	return 0;
+}
+
+void Chip8::decrTimers() {
+	if(sTimer > 0)
+		sTimer--;
+	if (dTimer > 0)
+		dTimer--;
 }
 
 void Chip8::clearDisp() {

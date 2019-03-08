@@ -40,6 +40,9 @@ public:
 	// Turn sprite wrapping off
 	void disableSpriteWrap() { wrapFlag = false; }
 
+	// Decrement the timers
+	void decrTimers();
+
 private:
 	// Hardware CHIP-8 is on typically has 4096 8-bit memory locations
 	uint8_t memory[CH8_MESIZE];
