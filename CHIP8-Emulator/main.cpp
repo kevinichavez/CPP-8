@@ -1,8 +1,8 @@
 #include <iostream>
 #include <ctime>
 #include <string>
-#include <SDL.h>
-#include <nfd.h>
+#include "SDL.h"
+#include "nfd.h"
 #include "Chip8.h"
 
 void drawScreen(const uint8_t*& c);
