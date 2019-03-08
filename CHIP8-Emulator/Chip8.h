@@ -2,11 +2,7 @@
 
 #include <cstdint>
 #include <string>
-
-const int CH8_WIDTH = 64;
-const int CH8_HEIGHT = 32;
-const int CH8_STACK_SIZE = 24;
-const int CH8_MESIZE = 0x1000;
+#include "constants.h"
 
 class Chip8 {
 
@@ -67,6 +63,11 @@ private:
 
 	// Sound timer, beeping noise made when value is non-zero
 	uint16_t sTimer;
+
+	// Keeps track of how many milliseconds passed when timers last updated
+	uint32_t lastTime;
+	uint32_t accumulator;
+	
 
 	// Flag that determines whether screen should be redrawn
 	bool drawFlag;

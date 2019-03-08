@@ -1,9 +1,10 @@
 #include <iostream>
 #include <ctime>
 #include <string>
-#include "SDL.h"
-#include "nfd.h"
+#include <SDL.h>
+#include <nfd.h>
 #include "Chip8.h"
+#include "constants.h"
 
 void drawScreen(const Chip8 &c, SDL_Renderer *renderer, int scalex, int scaley);
 void setKeys(Chip8 &c, const uint8_t *ks, bool keys[]);
@@ -104,7 +105,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	bool quit = false;
-	uint32_t ticks = 0;
 
 	// TODO: Slow down emulation
 	while (!quit) {
@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
 
 		// Emulate one CPU cycle
 		chip.emulateCycle();
-		ticks++;
+		chip.decrTimers();
 
 		// Redraw the screen if CHIP-8 drawflag was set
 		if (chip.shouldDraw())
