@@ -67,7 +67,6 @@ private:
 	// Keeps track of how many milliseconds passed when timers last updated
 	uint32_t lastTime;
 	uint32_t accumulator;
-	
 
 	// Flag that determines whether screen should be redrawn
 	bool drawFlag;
