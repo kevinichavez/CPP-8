@@ -105,28 +105,70 @@ int main(int argc, char *argv[]) {
 	}
 
 	bool quit = false;
-
+	uint32_t ticks = 0;
+	uint16_t speed = 10;
+	uint32_t currentTime, lastTime, deltaTime, accumulator;
+	accumulator = 0;
+	currentTime = SDL_GetTicks();
+	lastTime = currentTime;
 	// TODO: Slow down emulation
 	while (!quit) {
 
 		// Update which keys are pressed on keyboard
 		SDL_PumpEvents();
 
-		// Emulate one CPU cycle
-		chip.emulateCycle();
-		chip.decrTimers();
+		while (ticks % speed) {
+			// Emulate one CPU cycle
+			chip.emulateCycle();
+			ticks++;
 
-		// Redraw the screen if CHIP-8 drawflag was set
-		if (chip.shouldDraw())
-			drawScreen(chip, renderer, 10, 10);
+			// Redraw the screen if CHIP-8 drawflag was set
+			if (chip.shouldDraw())
+				drawScreen(chip, renderer, 10, 10);
+		}
+
+		// Slows down emulation
+		currentTime = SDL_GetTicks();
+		deltaTime = currentTime - lastTime;
+		if (deltaTime > 100)
+			deltaTime = 100;
+		lastTime = currentTime;
+		accumulator += deltaTime;
+
+		while (accumulator > TIMER_RATE) {
+			if (!(ticks % speed))
+				ticks++;
+			accumulator -= TIMER_RATE;
+		}
+
+		// Reduce delay and sound timers
+		chip.decrTimers();
 
 		// Pass currently pressed keys to CHIP-8
 		setKeys(chip, keystate, keys);
 
 		// Check if user pressed X button or escape
-		while (SDL_PollEvent(&e))
-			if (e.type == SDL_QUIT || e.type == SDLK_ESCAPE)
+		while (SDL_PollEvent(&e)) {
+			if (e.type == SDL_QUIT)
 				quit = true;
+			if (e.type == SDL_KEYDOWN) {
+				if (keystate[SDL_SCANCODE_COMMA]) {
+					if (speed > 1)
+						speed -= 1;
+					std::cout << "Emulation speed slowed to " << speed << std::endl;
+				}
+				else if (keystate[SDL_SCANCODE_PERIOD]) {
+					if (speed < 500)
+						speed += 1;
+					std::cout << "Emulation speed sped up to " << speed << std::endl;
+				}
+				else if (keystate[SDL_SCANCODE_ESCAPE]) {
+					quit = true;
+				}
+
+			}
+
+		}
 
 	}
 
