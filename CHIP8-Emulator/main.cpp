@@ -91,12 +91,15 @@ int main(int argc, char *argv[]) {
 		break;
 
 	case -1:
+		// File was not read into stream correctly
 		exit(4);
 
 	case -2:
+		// Chosen ROM is too large
 		exit(5);
 
 	case -3:
+		// ROM wasn't read into memory correctly
 		exit(6);
 
 	default:
@@ -111,7 +114,6 @@ int main(int argc, char *argv[]) {
 	accumulator = 0;
 	currentTime = SDL_GetTicks();
 	lastTime = currentTime;
-	// TODO: Slow down emulation
 	while (!quit) {
 
 		// Update which keys are pressed on keyboard
