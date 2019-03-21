@@ -2,6 +2,7 @@
 #include <ctime>
 #include <string>
 #include <SDL.h>
+#include <SDL_ttf.h>
 #include <nfd.h>
 #include "Chip8.h"
 #include "constants.h"
