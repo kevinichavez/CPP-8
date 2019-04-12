@@ -423,7 +423,7 @@ int Chip8::loadRom(std::string name) {
 	// Check file size
 	rom.seekg(0, rom.end);
 	int romSize = rom.tellg();
-	if (romSize > MAX_ROSIZE) {
+	if (romSize > MAX_ROM_SIZE) {
 		std::cerr << "File too large!";
 		return -2;
 	}
