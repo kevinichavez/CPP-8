@@ -407,9 +407,9 @@ void Chip8::setKeys(bool a[]) {
 int Chip8::loadRom(std::string name) {
 
 	// First 0x200 bytes reserved for interpretter (FONT files in this emulator's case)
-	const int MAX_ROSIZE = CH8_MESIZE - 0x200;
+	const int MAX_ROM_SIZE = CH8_MESIZE - 0x200;
 
-	char tempBuffer[MAX_ROSIZE];
+	char tempBuffer[MAX_ROM_SIZE];
 
 	// Read ROM file into memory
 	std::ifstream rom(name, std::ios::in | std::ios::binary);
