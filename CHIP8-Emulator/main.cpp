@@ -117,6 +117,9 @@ int main(int argc, char *argv[]) {
 	lastTime = currentTime;
 	while (!quit) {
 
+		// Reduce delay and sound timers
+		chip.decrTimers();
+
 		// Update which keys are pressed on keyboard
 		SDL_PumpEvents();
 
@@ -143,9 +146,6 @@ int main(int argc, char *argv[]) {
 				ticks++;
 			accumulator -= TIMER_RATE;
 		}
-
-		// Reduce delay and sound timers
-		chip.decrTimers();
 
 		// Pass currently pressed keys to CHIP-8
 		setKeys(chip, keystate, keys);

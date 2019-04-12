@@ -455,10 +455,27 @@ int Chip8::loadRom(std::string name) {
 }
 
 void Chip8::decrTimers() {
-	if (sTimer > 0)
-		sTimer--;
-	if (dTimer > 0)
-		dTimer--;
+
+	uint32_t curTime = SDL_GetTicks();
+
+	uint32_t timeDelta = curTime - lastTime;
+
+	// Caps deltaTime in case program is suspended
+	if (timeDelta > 100)
+		timeDelta = 100;
+
+	lastTime = curTime;
+
+	accumulator += timeDelta;
+
+	// Targets counting down at 60 Hz
+	while (accumulator > TIMER_RATE) {
+		if (sTimer > 0)
+			sTimer--;
+		if (dTimer > 0)
+			dTimer--;
+		accumulator -= TIMER_RATE;
+	}
 }
 
 void Chip8::clearDisp() {
