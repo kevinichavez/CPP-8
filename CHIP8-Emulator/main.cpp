@@ -184,10 +184,17 @@ int main(int argc, char *argv[]) {
 }
 
 void drawScreen(const Chip8 &c, SDL_Renderer *renderer, int scalex, int scaley) {
+
+	// Set render fill color to black
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+	// Clear all current pixels by making the screen black
 	SDL_RenderClear(renderer);
+
+	// Draw pixels in white
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
+	// Make every non-zero value in the graphics array a white rectangle
 	for (int i = 0; i < CH8_HEIGHT; i++) {
 		for (int j = 0; j < CH8_WIDTH; j++) {
 			if (c.gfx[j][i]) {
@@ -202,6 +209,7 @@ void drawScreen(const Chip8 &c, SDL_Renderer *renderer, int scalex, int scaley) 
 		}
 	}
 
+	// Present the pixel positions to the user
 	SDL_RenderPresent(renderer);
 }
 
