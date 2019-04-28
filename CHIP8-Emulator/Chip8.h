@@ -75,7 +75,7 @@ private:
 	// Store whether key is currently being pressed
 	bool keys[16];
 
-	// Determines what should happen if sprite goes off screen
+	// Determines what should happen if sprite goes off screen on the x-axis
 	bool wrapFlag;
 
 	// Clear the screen
