@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
 
 // Constants relating to the CHIP-8 machine itself
 const int CH8_WIDTH = 64;
@@ -26,3 +27,5 @@ const uint8_t CH8_FONTSET[80] = {
 
 // Constants relating to clock rate and frames per second
 const double TIMER_RATE = 1000.0 / 60.0;
+
+#endif

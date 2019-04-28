@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CHIP8_H
+#define CHIP8_H
 
 #include <cstdint>
 #include <string>
@@ -83,3 +84,5 @@ private:
 	// Increment program counter
 	void incrPC() { pc += 2; }
 };
+
+#endif
