@@ -8,4 +8,5 @@ This is a work-in-progress implementation of a CHIP-8 virtual machine. It is not
 
 # References
 https://en.wikipedia.org/wiki/CHIP-8
+
 http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/
