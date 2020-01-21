@@ -18,6 +18,14 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Chip8.cpp" />
+    <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Chip8.h" />
+    <ClInclude Include="src\constants.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{FC2719FD-357E-4E67-92C2-18B648776ECA}</ProjectGuid>
@@ -70,20 +78,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\SDL2_ttf-2.0.15\include;C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\nativefiledialogue\src\include;C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\SDL2-2.0.9\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\SDL2_ttf-2.0.15\lib\x86;C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\nativefiledialogue\build\lib\Debug\x86;C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\SDL2-2.0.9\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\kevin\source\repos\CHIP8-Emulator\CHIP8-Emulator\ext_libs\include\SDL2;C:\Users\kevin\source\repos\CHIP8-Emulator\CHIP8-Emulator\ext_libs\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\kevin\source\repos\CHIP8-Emulator\CHIP8-Emulator\ext_libs\Debug\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\SDL2_ttf-2.0.15\include;C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\nativefiledialogue\src\include;C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\SDL2-2.0.9\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\SDL2_ttf-2.0.15\lib\x86;C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\nativefiledialogue\build\lib\Release\x86;C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\SDL2-2.0.9\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\kevin\source\repos\CHIP8-Emulator\CHIP8-Emulator\ext_libs\include\SDL2;C:\Users\kevin\source\repos\CHIP8-Emulator\CHIP8-Emulator\ext_libs\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\kevin\source\repos\CHIP8-Emulator\CHIP8-Emulator\ext_libs\Release\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\nativefiledialogue\src\include;C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\SDL2-2.0.9\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\SDL2_ttf-2.0.15\lib\x64;C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\nativefiledialogue\build\lib\Debug\x64;C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\SDL2-2.0.9\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\kevin\source\repos\CHIP8-Emulator\CHIP8-Emulator\ext_libs\include\SDL2;C:\Users\kevin\source\repos\CHIP8-Emulator\CHIP8-Emulator\ext_libs\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\kevin\source\repos\CHIP8-Emulator\CHIP8-Emulator\ext_libs\Debug\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\nativefiledialogue\src\include;C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\SDL2-2.0.9\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\SDL2_ttf-2.0.15\lib\x64;C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\nativefiledialogue\build\lib\Release\x64;C:\Program Files %28x86%29\Microsoft Visual Studio\dev_libs\SDL2-2.0.9\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\kevin\source\repos\CHIP8-Emulator\CHIP8-Emulator\ext_libs\include\SDL2;C:\Users\kevin\source\repos\CHIP8-Emulator\CHIP8-Emulator\ext_libs\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\kevin\source\repos\CHIP8-Emulator\CHIP8-Emulator\ext_libs\Release\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -139,17 +147,6 @@
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Chip8.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Chip8.h" />
-    <ClInclude Include="constants.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
