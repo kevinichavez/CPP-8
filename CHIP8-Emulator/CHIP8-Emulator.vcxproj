@@ -25,6 +25,7 @@
   <ItemGroup>
     <ClInclude Include="src\Chip8.h" />
     <ClInclude Include="src\constants.h" />
+    <ClInclude Include="src\Emulator.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
