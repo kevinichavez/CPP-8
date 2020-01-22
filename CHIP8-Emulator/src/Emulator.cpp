@@ -14,13 +14,13 @@ Emulator::~Emulator() {
 }
 
 void Emulator::reset() {
-	scaleWidth = DEFAULT_SCALE;
-	scaleHeight = DEFAULT_SCALE;
+	m_scaleWidth = DEFAULT_SCALE;
+	m_scaleHeight = DEFAULT_SCALE;
 
-	width = CH8_WIDTH * scaleWidth;
-	height = CH8_HEIGHT * scaleHeight;
+	m_width = CH8_WIDTH * m_scaleWidth;
+	m_height = CH8_HEIGHT * m_scaleHeight;
 
-	gamePath = "";
+	m_gamePath = "";
 }
 
 bool Emulator::selectGame() {
@@ -32,7 +32,7 @@ bool Emulator::selectGame() {
 	case NFD_OKAY:
 		std::cout << "ROM path found successfully!" << std::endl;
 		std::cout << outPath << std::endl;
-		gamePath = outPath;
+		m_gamePath = outPath;
 		delete outPath;
 		return true;
 		break;
@@ -50,31 +50,31 @@ bool Emulator::selectGame() {
 
 void Emulator::drawScreen() {
 	// Set render fill color to black
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
 
 	// Clear all current pixels by making the screen black
-	SDL_RenderClear(renderer);
+	SDL_RenderClear(m_renderer);
 
 	// Draw pixels in white
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
 
 	// Make every non-zero value in the graphics array a white rectangle
 	for (int i = 0; i < CH8_HEIGHT; i++) {
 		for (int j = 0; j < CH8_WIDTH; j++) {
 			if (chip.gfx[j][i]) {
 				SDL_Rect pixel;
-				pixel.x = j * scaleWidth;
-				pixel.y = i * scaleHeight;
-				pixel.w = scaleWidth;
-				pixel.h = scaleHeight;
+				pixel.x = j * m_scaleWidth;
+				pixel.y = i * m_scaleHeight;
+				pixel.w = m_scaleWidth;
+				pixel.h = m_scaleHeight;
 
-				SDL_RenderFillRect(renderer, &pixel);
+				SDL_RenderFillRect(m_renderer, &pixel);
 			}
 		}
 	}
 
 	// Present the pixel positions to the user
-	SDL_RenderPresent(renderer);
+	SDL_RenderPresent(m_renderer);
 }
 
 void Emulator::sendInput(const uint8_t* ks, bool keys[]) {
@@ -88,35 +88,35 @@ void Emulator::sendInput(const uint8_t* ks, bool keys[]) {
 
 int Emulator::runGame() {
 	// Load ROM into memory
-	int result = chip.loadRom(gamePath);
+	int result = chip.loadRom(m_gamePath);
 	if (result != SUCCESS) {
 		return result;
 	}
 
-	gameWindow = SDL_CreateWindow(
+	m_gameWindow = SDL_CreateWindow(
 		"CHIP 8",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
-		width,
-		height,
+		m_width,
+		m_height,
 		SDL_WINDOW_OPENGL |
 		SDL_WINDOW_SHOWN
 	);
 
-	if (gameWindow == NULL) {
+	if (m_gameWindow == NULL) {
 		std::cerr << "Could not create window. SDL Error: " << SDL_GetError() << std::endl;
 		return ERR_INIT_SDL;
 	}
 
 	// Create Renderer
-	renderer = SDL_CreateRenderer(gameWindow, -1, SDL_RENDERER_ACCELERATED);
+	m_renderer = SDL_CreateRenderer(m_gameWindow, -1, SDL_RENDERER_ACCELERATED);
 
-	// Create texture
-	texture = SDL_CreateTexture(renderer,
+	// Create m_texture
+	m_texture = SDL_CreateTexture(m_renderer,
 		SDL_PIXELFORMAT_ARGB8888,
 		SDL_TEXTUREACCESS_STREAMING,
-		width,
-		height);
+		m_width,
+		m_height);
 
 	// Snapshot of keyboard's current state
 	const uint8_t* keystate = SDL_GetKeyboardState(NULL);
@@ -203,6 +203,6 @@ int Emulator::runGame() {
 }
 
 int Emulator::runGame(std::string path) {
-	gamePath = path;
+	m_gamePath = path;
 	return runGame();
 }

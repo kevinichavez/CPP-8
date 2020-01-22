@@ -16,11 +16,11 @@ public:
 	void reset();
 private:
 	Chip8 chip;
-	std::string gamePath;
-	SDL_Window* gameWindow;
-	SDL_Renderer* renderer;
-	SDL_Texture* texture;
-	int width, height, scaleWidth, scaleHeight;
+	std::string m_gamePath;
+	SDL_Window* m_gameWindow;
+	SDL_Renderer* m_renderer;
+	SDL_Texture* m_texture;
+	int m_width, m_height, m_scaleWidth, m_scaleHeight;
 
 	void drawScreen();
 	void sendInput(const uint8_t* ks, bool keys[]);

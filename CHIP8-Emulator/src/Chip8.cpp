@@ -241,19 +241,19 @@ void Chip8::emulateCycle() {
 	}
 
 	case 0xD000: {
-		// DXYN: Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels
+		// DXYN: Draws a sprite at coordinate (VX, VY) that has a m_width of 8 pixels and a m_height of N pixels
 		// Each row of 8 pixels is read as bit-coded starting from memory location I
 		// I value doesn’t change after the execution of this instruction
 		// VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesn’t happen
 
-		// Get height of sprite
-		int height = opcode & 0x0F;
+		// Get m_height of sprite
+		int m_height = opcode & 0x0F;
 
 		// Reset VF Register since we don't know if there was collision yet
 		V[0xF] = 0;
 
 		// Loop for number of rows the sprite takes up
-		for (int row = 0; row < height; row++) {
+		for (int row = 0; row < m_height; row++) {
 
 			// Get one row of sprite at a time
 			uint8_t spriteRow = memory[I + row];
