@@ -14,13 +14,13 @@ Emulator::~Emulator() {
 }
 
 void Emulator::reset() {
+	m_fpsTimer.stop();
 	m_scaleWidth = DEFAULT_SCALE;
 	m_scaleHeight = DEFAULT_SCALE;
-
 	m_width = CH8_WIDTH * m_scaleWidth;
 	m_height = CH8_HEIGHT * m_scaleHeight;
-
 	m_gamePath = "";
+	m_totalFrames = 0;
 }
 
 bool Emulator::selectGame() {
@@ -75,6 +75,9 @@ void Emulator::drawScreen() {
 
 	// Present the pixel positions to the user
 	SDL_RenderPresent(m_renderer);
+
+	// Add one frame to the total
+	++m_totalFrames;
 }
 
 void Emulator::sendInput(const uint8_t* ks, bool keys[]) {
@@ -133,6 +136,8 @@ int Emulator::runGame() {
 	accumulator = 0;
 	currentTime = SDL_GetTicks();
 	lastTime = currentTime;
+	std::string title;
+	m_fpsTimer.start();
 
 	// main loop
 	while (!quit) {
@@ -187,6 +192,9 @@ int Emulator::runGame() {
 						speed += 1;
 					std::cout << "Emulation speed sped up to " << speed << std::endl;
 				}
+				else if (keystate[SDL_SCANCODE_SLASH]) {
+					std::cout << "Current FPS: " << (int)(getAvgFPS() + 0.5) << '\n';
+				}
 				else if (keystate[SDL_SCANCODE_ESCAPE]) {
 					quit = true;
 				}
@@ -194,10 +202,7 @@ int Emulator::runGame() {
 			}
 
 		}
-
 	}
-
-	
 
 	return SUCCESS;
 }
@@ -205,4 +210,15 @@ int Emulator::runGame() {
 int Emulator::runGame(std::string path) {
 	m_gamePath = path;
 	return runGame();
+}
+
+double Emulator::getAvgFPS() {
+	// we divide by 1000 to get time passed in seconds
+	double avg = m_totalFrames / (m_fpsTimer.getTicks() / 1000.0);
+
+	// When total number of frames is low, average will be too high due to the math, so we correct it here
+	if (avg > 2000000)
+		return 0;
+
+	return avg;
 }

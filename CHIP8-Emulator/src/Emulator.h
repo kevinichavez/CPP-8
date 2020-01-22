@@ -22,10 +22,12 @@ private:
 	SDL_Renderer* m_renderer;
 	SDL_Texture* m_texture;
 	int m_width, m_height, m_scaleWidth, m_scaleHeight;
-	Timer fpsTimer;
+	Timer m_fpsTimer;
+	unsigned long m_totalFrames;
 
 	void drawScreen();
 	void sendInput(const uint8_t* ks, bool keys[]);
+	double getAvgFPS();
 };
 
 #endif
