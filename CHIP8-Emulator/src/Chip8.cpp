@@ -459,7 +459,7 @@ int Chip8::loadRom(std::string name) {
 
 void Chip8::decrTimers() {
 	uint32_t currTime = SDL_GetTicks();
-	if (currTime - lastTime > TARGET_FRAMETIME) {
+	if (currTime - lastTime > TARGET_FRAMETIME_MILLISECONDS) {
 		lastTime = currTime;
 
 		if (sTimer > 0)

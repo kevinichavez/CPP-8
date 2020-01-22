@@ -117,6 +117,8 @@ int Emulator::runGame() {
 		SDL_WINDOW_SHOWN
 	);
 
+	SDL_GL_SetSwapInterval(0);
+
 	if (m_gameWindow == NULL) {
 		std::cerr << "Could not create window. SDL Error: " << SDL_GetError() << std::endl;
 		return ERR_INIT_SDL;
@@ -125,7 +127,7 @@ int Emulator::runGame() {
 	// Create Renderer
 	m_renderer = SDL_CreateRenderer(m_gameWindow, -1, SDL_RENDERER_ACCELERATED);
 
-	// Create m_texture
+	// Create Texture
 	m_texture = SDL_CreateTexture(m_renderer,
 		SDL_PIXELFORMAT_ARGB8888,
 		SDL_TEXTUREACCESS_STREAMING,
@@ -141,10 +143,10 @@ int Emulator::runGame() {
 	SDL_Event e;
 
 	bool quit = false;
-	uint16_t speed = 0;
-	uint32_t currentTime, lastTime;
-	currentTime = SDL_GetTicks();
-	lastTime = currentTime;
+	double speed = 1.0;
+	uint64_t prevFrame = SDL_GetPerformanceCounter();
+	uint64_t currentFrame;
+	double secondsBetweenFrames;
 	std::string title;
 	m_paused = false;
 	m_fpsTimer.start();
@@ -158,14 +160,14 @@ int Emulator::runGame() {
 				quit = true;
 			if (e.type == SDL_KEYDOWN) {
 				if (keystate[SDL_SCANCODE_COMMA]) {
-					if (speed > 1)
-						speed -= 1;
-					std::cout << "Emulation speed slowed to " << 100 + speed << "%\n";
+					if (speed > 0)
+						speed -= 0.1;
+					std::cout << "Emulation speed slowed to " << (int)(speed * 100 + 0.5) << "%\n";
 				}
 				else if (keystate[SDL_SCANCODE_PERIOD]) {
 					if (speed < 500)
-						speed += 1;
-					std::cout << "Emulation speed sped up to " << 100 + speed << "%\n";
+						speed += 0.1;
+					std::cout << "Emulation speed sped up to " << (int)(speed * 100 + 0.5) << "%\n";
 				}
 				else if (keystate[SDL_SCANCODE_SLASH]) {
 					std::cout << "Current FPS: " << (int)(getAvgFPS() + 0.5) << '\n';
@@ -189,6 +191,7 @@ int Emulator::runGame() {
 		}
 
 		if (!m_paused) {
+
 			// Pass currently pressed keys to CHIP-8
 			sendInput(keystate, keys);
 
@@ -196,17 +199,23 @@ int Emulator::runGame() {
 
 			// Redraw the screen if CHIP-8 drawflag was set
 			if (chip.shouldDraw()) {
+
 				drawScreen();
 
-				if (m_throttleSpeed)
+				if (m_throttleSpeed) {
 					SDL_Delay(10);
-			}
-			
 
-			do {
-				chip.decrTimers();
-			} while (getAvgFPS() > TARGET_FRAMERATE + speed && m_throttleSpeed);
+					do {
+						currentFrame = SDL_GetPerformanceCounter();
+						secondsBetweenFrames = (double) (currentFrame - prevFrame) / (double) SDL_GetPerformanceFrequency();
+					} while (secondsBetweenFrames < TARGET_FRAMETIME_SECONDS * (1.0 / speed));
+
+					prevFrame = currentFrame;
+				}
+
+			}
 		}
+		else SDL_Delay(10);
 		
 	}
 
