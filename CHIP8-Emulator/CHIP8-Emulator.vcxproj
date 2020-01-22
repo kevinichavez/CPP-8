@@ -22,11 +22,13 @@
     <ClCompile Include="src\Chip8.cpp" />
     <ClCompile Include="src\Emulator.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Chip8.h" />
     <ClInclude Include="src\constants.h" />
     <ClInclude Include="src\Emulator.h" />
+    <ClInclude Include="src\timer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

@@ -12,6 +12,7 @@ public:
 
 	bool selectGame();
 	int runGame();
+	int runGame(std::string path);
 	void reset();
 private:
 	Chip8 chip;

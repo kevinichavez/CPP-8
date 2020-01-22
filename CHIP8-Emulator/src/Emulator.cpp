@@ -201,3 +201,8 @@ int Emulator::runGame() {
 
 	return SUCCESS;
 }
+
+int Emulator::runGame(std::string path) {
+	gamePath = path;
+	return runGame();
+}
