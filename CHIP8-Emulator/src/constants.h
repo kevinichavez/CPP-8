@@ -28,4 +28,10 @@ const uint8_t CH8_FONTSET[80] = {
 // Constants relating to clock rate and frames per second
 const double TIMER_RATE = 1000.0 / 60.0;
 
+// Error code constants
+const int SUCCESS = 0;
+const int ERR_INIT_SDL = 1;
+const int ERR_ROM_READ = -1;
+const int ERR_ROM_TOO_BIG = -2;
+
 #endif

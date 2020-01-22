@@ -7,6 +7,10 @@
 void unknownOpcode(uint16_t opcode);
 
 Chip8::Chip8() {
+	init();
+}
+
+void Chip8::init() {
 	// Clear first 0x200 bytes of memory
 	for (int i = 0; i < 0x200; i++)
 		memory[i] = 0;
@@ -14,9 +18,7 @@ Chip8::Chip8() {
 	// Load in fontset
 	for (int i = 0; i < 80; i++)
 		memory[i] = CH8_FONTSET[i];
-}
 
-void Chip8::init() {
 	// Program counter starts at 0x200
 	pc = 0x200;
 	
@@ -406,7 +408,7 @@ void Chip8::setKeys(bool a[]) {
 
 int Chip8::loadRom(std::string name) {
 
-	// First 0x200 bytes reserved for interpretter (FONT files in this emulator's case)
+	// First 0x200 bytes reserved for interpretter (font in our case)
 	const int MAX_ROM_SIZE = CH8_MESIZE - 0x200;
 
 	char tempBuffer[MAX_ROM_SIZE];
@@ -425,7 +427,7 @@ int Chip8::loadRom(std::string name) {
 	int romSize = rom.tellg();
 	if (romSize > MAX_ROM_SIZE) {
 		std::cerr << "File too large!";
-		return -2;
+		return ERR_ROM_TOO_BIG;
 	}
 
 	// Reset 
@@ -442,7 +444,7 @@ int Chip8::loadRom(std::string name) {
 		std::cout << "all " << rom.gcount() << " bytes read successfully.";
 	else {
 		std::cerr << "error: only " << rom.gcount() << "bytes could be read";
-		return -3;
+		return ERR_ROM_READ;
 	}
 
 	rom.close();
@@ -451,7 +453,7 @@ int Chip8::loadRom(std::string name) {
 	for (int i = 0; i < romSize; i++)
 		memory[0x200 + i] = tempBuffer[i];
 
-	return 0;
+	return SUCCESS;
 }
 
 void Chip8::decrTimers() {
