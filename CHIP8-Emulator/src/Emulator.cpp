@@ -14,8 +14,12 @@ Emulator::~Emulator() {
 }
 
 void Emulator::reset() {
-	width = CH8_WIDTH * 10;
-	height = CH8_HEIGHT * 10;
+	scaleWidth = DEFAULT_SCALE;
+	scaleHeight = DEFAULT_SCALE;
+
+	width = CH8_WIDTH * scaleWidth;
+	height = CH8_HEIGHT * scaleHeight;
+
 	gamePath = "";
 }
 
@@ -59,10 +63,10 @@ void Emulator::drawScreen() {
 		for (int j = 0; j < CH8_WIDTH; j++) {
 			if (chip.gfx[j][i]) {
 				SDL_Rect pixel;
-				pixel.x = j * width;
-				pixel.y = i * height;
-				pixel.w = width;
-				pixel.h = height;
+				pixel.x = j * scaleWidth;
+				pixel.y = i * scaleHeight;
+				pixel.w = scaleWidth;
+				pixel.h = scaleHeight;
 
 				SDL_RenderFillRect(renderer, &pixel);
 			}
@@ -149,6 +153,7 @@ int Emulator::runGame() {
 				drawScreen();
 		}
 
+		
 		// Slows down emulation
 		currentTime = SDL_GetTicks();
 		deltaTime = currentTime - lastTime;
@@ -162,6 +167,7 @@ int Emulator::runGame() {
 				ticks++;
 			accumulator -= TIMER_RATE;
 		}
+		
 
 		// Pass currently pressed keys to CHIP-8
 		sendInput(keystate, keys);
@@ -191,4 +197,7 @@ int Emulator::runGame() {
 
 	}
 
+	
+
+	return SUCCESS;
 }

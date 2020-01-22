@@ -19,7 +19,7 @@ private:
 	SDL_Window* gameWindow;
 	SDL_Renderer* renderer;
 	SDL_Texture* texture;
-	int width, height;
+	int width, height, scaleWidth, scaleHeight;
 
 	void drawScreen();
 	void sendInput(const uint8_t* ks, bool keys[]);

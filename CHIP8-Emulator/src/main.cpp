@@ -19,8 +19,15 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	Emulator* emu;
+	Emulator emu;
 
+	if (emu.selectGame()) {
+		switch (emu.runGame()) {
+
+		default:
+			break;
+		}
+	}
 
 	// Cleanup
 	SDL_Quit();
