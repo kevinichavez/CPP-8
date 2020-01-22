@@ -11,13 +11,6 @@ Chip8::Chip8() {
 }
 
 void Chip8::init() {
-	// Clear first 0x200 bytes of memory
-	for (int i = 0; i < 0x200; i++)
-		memory[i] = 0;
-
-	// Load in fontset
-	for (int i = 0; i < 80; i++)
-		memory[i] = CH8_FONTSET[i];
 
 	// Program counter starts at 0x200
 	pc = 0x200;
@@ -40,7 +33,7 @@ void Chip8::init() {
 		stack[i] = 0;
 
 	// Clear memory
-	for (int i = pc; i < CH8_MESIZE; i++)
+	for (int i = pc; i < CH8_MEM_SIZE; i++)
 		memory[i] = 0;
 
 	// Reset delay timer
@@ -59,6 +52,14 @@ void Chip8::init() {
 	// Reset timer counter
 	lastTime = SDL_GetTicks();
 	accumulator = 0;
+
+	// Clear first 0x200 bytes of memory
+	for (int i = 0; i < 0x200; i++)
+		memory[i] = 0;
+
+	// Load in fontset
+	for (int i = 0; i < 80; i++)
+		memory[i] = CH8_FONTSET[i];
 }
 
 void Chip8::emulateCycle() {
@@ -409,7 +410,7 @@ void Chip8::setKeys(bool a[]) {
 int Chip8::loadRom(std::string name) {
 
 	// First 0x200 bytes reserved for interpretter (font in our case)
-	const int MAX_ROM_SIZE = CH8_MESIZE - 0x200;
+	const int MAX_ROM_SIZE = CH8_MEM_SIZE - 0x200;
 
 	char tempBuffer[MAX_ROM_SIZE];
 

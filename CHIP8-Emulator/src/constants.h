@@ -5,7 +5,7 @@
 const int CH8_WIDTH = 64;
 const int CH8_HEIGHT = 32;
 const int CH8_STACK_SIZE = 24;
-const int CH8_MESIZE = 0x1000;
+const int CH8_MEM_SIZE = 0x1000;
 const uint8_t CH8_FONTSET[80] = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
   0x20, 0x60, 0x20, 0x20, 0x70, // 1

@@ -42,7 +42,7 @@ public:
 
 private:
 	// Hardware CHIP-8 is on typically has 4096 8-bit memory locations
-	uint8_t memory[CH8_MESIZE];
+	uint8_t memory[CH8_MEM_SIZE];
 
 	// CHIP-8 has 16 8-bit data registers named V0 through VF
 	uint8_t V[16];
