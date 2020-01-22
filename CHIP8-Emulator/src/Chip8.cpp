@@ -51,7 +51,6 @@ void Chip8::init() {
 
 	// Reset timer counter
 	lastTime = SDL_GetTicks();
-	accumulator = 0;
 
 	// Clear first 0x200 bytes of memory
 	for (int i = 0; i < 0x200; i++)
@@ -60,6 +59,7 @@ void Chip8::init() {
 	// Load in fontset
 	for (int i = 0; i < 80; i++)
 		memory[i] = CH8_FONTSET[i];
+
 }
 
 void Chip8::emulateCycle() {
@@ -458,27 +458,16 @@ int Chip8::loadRom(std::string name) {
 }
 
 void Chip8::decrTimers() {
+	uint32_t currTime = SDL_GetTicks();
+	if (currTime - lastTime > TARGET_FRAMETIME) {
+		lastTime = currTime;
 
-	uint32_t curTime = SDL_GetTicks();
-
-	uint32_t timeDelta = curTime - lastTime;
-
-	// Caps deltaTime in case program is suspended
-	if (timeDelta > 100)
-		timeDelta = 100;
-
-	lastTime = curTime;
-
-	accumulator += timeDelta;
-
-	// Targets counting down at 60 Hz
-	while (accumulator > TIMER_RATE) {
 		if (sTimer > 0)
-			sTimer--;
+			--sTimer;
 		if (dTimer > 0)
-			dTimer--;
-		accumulator -= TIMER_RATE;
+			--dTimer;
 	}
+
 }
 
 void Chip8::clearDisp() {

@@ -131,7 +131,7 @@ int Emulator::runGame() {
 
 	bool quit = false;
 	uint32_t ticks = 0;
-	uint16_t speed = 10;
+	uint16_t speed = 0;
 	uint32_t currentTime, lastTime, deltaTime, accumulator;
 	accumulator = 0;
 	currentTime = SDL_GetTicks();
@@ -148,17 +148,20 @@ int Emulator::runGame() {
 		// Update which keys are pressed on keyboard
 		SDL_PumpEvents();
 
-		while (ticks % speed) {
+		// while (ticks % speed) {
 			// Emulate one CPU cycle
-			chip.emulateCycle();
-			ticks++;
+		chip.emulateCycle();
+		chip.decrTimers();
+		ticks++;
 
-			// Redraw the screen if CHIP-8 drawflag was set
-			if (chip.shouldDraw())
-				drawScreen();
-		}
+		// Redraw the screen if CHIP-8 drawflag was set
+		if (chip.shouldDraw()) {
+			drawScreen();
+			SDL_Delay(1);
+	}
+		// }
 
-		
+		/* Old framerate regulating code
 		// Slows down emulation
 		currentTime = SDL_GetTicks();
 		deltaTime = currentTime - lastTime;
@@ -167,12 +170,16 @@ int Emulator::runGame() {
 		lastTime = currentTime;
 		accumulator += deltaTime;
 
-		while (accumulator > TIMER_RATE) {
+		while (accumulator > TARGET_FRAMERATE) {
 			if (!(ticks % speed))
 				ticks++;
-			accumulator -= TIMER_RATE;
+			accumulator -= TARGET_FRAMERATE;
 		}
-		
+		*/
+
+		while (getAvgFPS() > TARGET_FRAMERATE + speed) {
+
+		}
 
 		// Pass currently pressed keys to CHIP-8
 		sendInput(keystate, keys);
@@ -216,7 +223,7 @@ double Emulator::getAvgFPS() {
 	// we divide by 1000 to get time passed in seconds
 	double avg = m_totalFrames / (m_fpsTimer.getTicks() / 1000.0);
 
-	// When total number of frames is low, average will be too high due to the math, so we correct it here
+	// When total number of ticks is low, average will be too high due to the math, so we correct it here
 	if (avg > 2000000)
 		return 0;
 
