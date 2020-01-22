@@ -9,12 +9,18 @@
 class Emulator {
 public:
 	Emulator();
-	~Emulator();
+
+	// Specify flags when constructing
+	Emulator(uint16_t flags);
 
 	bool selectGame();
 	int runGame();
 	int runGame(std::string path);
 	void reset();
+	void togglePause();
+	bool isPaused() { return m_paused; }
+	void toggleThrottle() { m_throttleSpeed = !m_throttleSpeed; }
+
 private:
 	Chip8 chip;
 	std::string m_gamePath;
@@ -24,6 +30,8 @@ private:
 	int m_width, m_height, m_scaleWidth, m_scaleHeight;
 	Timer m_fpsTimer;
 	unsigned long m_totalFrames;
+	bool m_paused;
+	bool m_throttleSpeed;
 
 	void drawScreen();
 	void sendInput(const uint8_t* ks, bool keys[]);

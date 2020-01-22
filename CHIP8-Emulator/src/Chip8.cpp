@@ -442,7 +442,7 @@ int Chip8::loadRom(std::string name) {
 
 	// Check if ROM was read into temporary buffer successfully
 	if (rom)
-		std::cout << "all " << rom.gcount() << " bytes read successfully.";
+		std::cout << "All " << rom.gcount() << " bytes read successfully.\n";
 	else {
 		std::cerr << "error: only " << rom.gcount() << "bytes could be read";
 		return ERR_ROM_READ;

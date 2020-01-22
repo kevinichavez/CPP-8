@@ -28,7 +28,7 @@ const uint8_t CH8_FONTSET[80] = {
 
 // Constants relating to clock rate and frames per second
 const double TARGET_FRAMERATE = 60.0;
-const double TARGET_FRAMETIME = 1000.0 / 60.0;
+const double TARGET_FRAMETIME = 1000.0 / TARGET_FRAMERATE;
 
 // Error code constants
 const int SUCCESS = 0;

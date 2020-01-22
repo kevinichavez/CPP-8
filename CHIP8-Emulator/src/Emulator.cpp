@@ -9,8 +9,9 @@ Emulator::Emulator() {
 	reset();
 }
 
-Emulator::~Emulator() {
-	SDL_Quit();
+Emulator::Emulator(uint16_t flags) {
+	reset();
+
 }
 
 void Emulator::reset() {
@@ -21,6 +22,16 @@ void Emulator::reset() {
 	m_height = CH8_HEIGHT * m_scaleHeight;
 	m_gamePath = "";
 	m_totalFrames = 0;
+	m_paused = false;
+	m_throttleSpeed = true;
+}
+
+void Emulator::togglePause() {
+	if (m_paused)
+		m_fpsTimer.pause();
+	else m_fpsTimer.unpause();
+
+	m_paused = !m_paused;
 }
 
 bool Emulator::selectGame() {
@@ -130,61 +141,18 @@ int Emulator::runGame() {
 	SDL_Event e;
 
 	bool quit = false;
-	uint32_t ticks = 0;
 	uint16_t speed = 0;
-	uint32_t currentTime, lastTime, deltaTime, accumulator;
-	accumulator = 0;
+	uint32_t currentTime, lastTime;
 	currentTime = SDL_GetTicks();
 	lastTime = currentTime;
 	std::string title;
+	m_paused = false;
 	m_fpsTimer.start();
 
 	// main loop
 	while (!quit) {
 
-		// Reduce delay and sound timers
-		chip.decrTimers();
-
-		// Update which keys are pressed on keyboard
-		SDL_PumpEvents();
-
-		// while (ticks % speed) {
-			// Emulate one CPU cycle
-		chip.emulateCycle();
-		chip.decrTimers();
-		ticks++;
-
-		// Redraw the screen if CHIP-8 drawflag was set
-		if (chip.shouldDraw()) {
-			drawScreen();
-			SDL_Delay(1);
-	}
-		// }
-
-		/* Old framerate regulating code
-		// Slows down emulation
-		currentTime = SDL_GetTicks();
-		deltaTime = currentTime - lastTime;
-		if (deltaTime > 100)
-			deltaTime = 100;
-		lastTime = currentTime;
-		accumulator += deltaTime;
-
-		while (accumulator > TARGET_FRAMERATE) {
-			if (!(ticks % speed))
-				ticks++;
-			accumulator -= TARGET_FRAMERATE;
-		}
-		*/
-
-		while (getAvgFPS() > TARGET_FRAMERATE + speed) {
-
-		}
-
-		// Pass currently pressed keys to CHIP-8
-		sendInput(keystate, keys);
-
-		// Check if user pressed X button or escape
+		// Mostly debug; will remove all except SDL_QUIT in future version
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_QUIT)
 				quit = true;
@@ -192,23 +160,54 @@ int Emulator::runGame() {
 				if (keystate[SDL_SCANCODE_COMMA]) {
 					if (speed > 1)
 						speed -= 1;
-					std::cout << "Emulation speed slowed to " << speed << std::endl;
+					std::cout << "Emulation speed slowed to " << 100 + speed << "%\n";
 				}
 				else if (keystate[SDL_SCANCODE_PERIOD]) {
 					if (speed < 500)
 						speed += 1;
-					std::cout << "Emulation speed sped up to " << speed << std::endl;
+					std::cout << "Emulation speed sped up to " << 100 + speed << "%\n";
 				}
 				else if (keystate[SDL_SCANCODE_SLASH]) {
 					std::cout << "Current FPS: " << (int)(getAvgFPS() + 0.5) << '\n';
 				}
 				else if (keystate[SDL_SCANCODE_ESCAPE]) {
-					quit = true;
+					if (m_paused)
+						std::cout << "Unpaused\n";
+					else std::cout << "Paused\n";
+					togglePause();
+				}
+				else if (keystate[SDL_SCANCODE_M]) {
+					std::cout << "Throttle ";
+					if (m_throttleSpeed)
+						std::cout << "disabled\n";
+					else std::cout << "enabled\n";
+					toggleThrottle();
 				}
 
 			}
 
 		}
+
+		if (!m_paused) {
+			chip.emulateCycle();
+
+			// Redraw the screen if CHIP-8 drawflag was set
+			if (chip.shouldDraw()) {
+				drawScreen();
+
+				if (m_throttleSpeed)
+					SDL_Delay(10);
+			}
+			
+
+			do {
+				chip.decrTimers();
+			} while (getAvgFPS() > TARGET_FRAMERATE + speed && m_throttleSpeed);
+
+			// Pass currently pressed keys to CHIP-8
+			sendInput(keystate, keys);
+		}
+		
 	}
 
 	return SUCCESS;
