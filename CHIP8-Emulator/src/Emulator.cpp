@@ -28,8 +28,8 @@ void Emulator::reset() {
 
 void Emulator::togglePause() {
 	if (m_paused)
-		m_fpsTimer.pause();
-	else m_fpsTimer.unpause();
+		m_fpsTimer.unpause();
+	else m_fpsTimer.pause();
 
 	m_paused = !m_paused;
 }
@@ -108,7 +108,7 @@ int Emulator::runGame() {
 	}
 
 	m_gameWindow = SDL_CreateWindow(
-		"CHIP 8",
+		"CHIP-8",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		m_width,
@@ -189,6 +189,9 @@ int Emulator::runGame() {
 		}
 
 		if (!m_paused) {
+			// Pass currently pressed keys to CHIP-8
+			sendInput(keystate, keys);
+
 			chip.emulateCycle();
 
 			// Redraw the screen if CHIP-8 drawflag was set
@@ -203,9 +206,6 @@ int Emulator::runGame() {
 			do {
 				chip.decrTimers();
 			} while (getAvgFPS() > TARGET_FRAMERATE + speed && m_throttleSpeed);
-
-			// Pass currently pressed keys to CHIP-8
-			sendInput(keystate, keys);
 		}
 		
 	}

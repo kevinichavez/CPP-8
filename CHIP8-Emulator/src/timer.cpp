@@ -2,9 +2,7 @@
 #include <SDL.h>
 
 Timer::Timer() {
-	m_startTicks = 0;
-	m_pausedTicks = 0;
-	m_status = TIMER_STOPPED;
+	stop();
 }
 
 void Timer::start() {
