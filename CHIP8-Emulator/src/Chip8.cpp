@@ -95,7 +95,6 @@ void Chip8::emulateCycle() {
 
 		default:
 			std::cerr << "Trying to call RCA 1802 at " << std::hex << (0x0FFF & opcode) << std::dec << " (?)" << std::endl;
-			exit(-1);
 		}
 		break;
 
@@ -185,7 +184,7 @@ void Chip8::emulateCycle() {
 			if (V[x] < V[y])
 				V[0xF] = 0;
 			else V[0xF] = 1;
-			V[x] = V[x] - V[y];
+			V[x] -= V[y];
 			incrPC();
 			break;
 
@@ -201,7 +200,7 @@ void Chip8::emulateCycle() {
 			if (V[x] > V[y])
 				V[0xF] = 0;
 			else V[0xF] = 1;
-			V[x] = V[y] - V[x];;
+			V[x] = V[y] - V[x];
 			incrPC();
 			break;
 
@@ -236,7 +235,7 @@ void Chip8::emulateCycle() {
 
 	case 0xC000: {
 		// CXNN: Sets VX to the result of a bitwise AND operation on a random number between 0 and 255 and NN
-		uint8_t rng = rand() % 0xFF;
+		uint8_t rng = rand();
 		V[x] = rng & (opcode & 0x00FF);
 		incrPC();
 		break;
@@ -255,7 +254,7 @@ void Chip8::emulateCycle() {
 		V[0xF] = 0;
 
 		// We will store the coordinates of the pixel here
-		int pX, pY;
+		uint8_t pX, pY;
 
 		// We will store the current row of the sprite here
 		uint8_t spriteRow;
@@ -277,17 +276,17 @@ void Chip8::emulateCycle() {
 				// Check if bit is set
 				if (bit) {
 
-					// Check whether to wrap x-axis
+					// Check whether to wrap around
 					if (pX >= CH8_WIDTH) {
 						if (wrapFlag)
 							pX %= CH8_WIDTH;
 						else continue;
 					}
-
-					// We won't process this pixel if it's out of bounds on the y-axis
-					if (pY > CH8_HEIGHT)
-						continue;
-
+					if (pY > CH8_HEIGHT) {
+						if (wrapFlag)
+							pY %= CH8_HEIGHT;
+						else continue;
+					}
 					// Check if bit is already set
 					if (gfx[pX][pY] == 1)
 						V[0xF] = 1;
@@ -342,7 +341,7 @@ void Chip8::emulateCycle() {
 					V[x] = keys[i];
 					i = 0xF;
 				}
-			if (keyIsPressed)
+			if (!keyIsPressed)
 				return;
 			incrPC();
 			break;
@@ -362,7 +361,7 @@ void Chip8::emulateCycle() {
 
 		case 0x001E: {
 			// FX1E: Adds VX to I. VF is set to 1 when there is a range overflow and 0 when there isn't
-			int vxisum = V[x] + I;
+			uint32_t vxisum = V[x] + I;
 			if (vxisum > 0x0FFF)
 				V[0xF] = 1;
 			else V[0xF] = 0;
@@ -373,7 +372,8 @@ void Chip8::emulateCycle() {
 
 		case 0x0029:
 			// FX29: Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font
-			I = V[x] * 5;
+			// Since we know that the font is stored at offset 0x0, we can just set I equal to Vx multiplied by the width
+			I = V[x] * CH8_FONT_WIDTH;
 			incrPC();
 			break;
 
