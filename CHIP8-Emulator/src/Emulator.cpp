@@ -5,13 +5,14 @@
 #include <cstdint>
 #include "constants.h"
 
+double getMaxSleep();
+
 Emulator::Emulator() {
 	reset();
 }
 
 Emulator::Emulator(uint16_t flags) {
 	reset();
-
 }
 
 void Emulator::reset() {
@@ -24,6 +25,7 @@ void Emulator::reset() {
 	m_totalFrames = 0;
 	m_paused = false;
 	m_throttleSpeed = true;
+	m_useSDLdelay = true;
 }
 
 void Emulator::togglePause() {
@@ -150,6 +152,12 @@ int Emulator::runGame() {
 	std::string title;
 	m_paused = false;
 	m_fpsTimer.start();
+	if (avgSleep.valid())
+		m_useSDLdelay = (avgSleep.get() <= TARGET_FRAMETIME_SECONDS);
+	else {
+		quit = true;
+		std::cerr << "There was an error in the async call to getAvgSleep";
+	}
 
 	// main loop
 	while (!quit) {
@@ -203,7 +211,8 @@ int Emulator::runGame() {
 				drawScreen();
 
 				if (m_throttleSpeed) {
-					SDL_Delay(10);
+					if(m_useSDLdelay)
+						SDL_Delay(SDL_DELAY_VALUE);
 
 					do {
 						currentFrame = SDL_GetPerformanceCounter();

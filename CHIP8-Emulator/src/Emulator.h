@@ -32,6 +32,7 @@ private:
 	unsigned long m_totalFrames;
 	bool m_paused;
 	bool m_throttleSpeed;
+	bool m_useSDLdelay;
 
 	void drawScreen();
 	void sendInput(const uint8_t* ks, bool keys[]);

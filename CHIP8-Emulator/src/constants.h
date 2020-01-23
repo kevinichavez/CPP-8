@@ -30,6 +30,7 @@ const uint8_t CH8_FONTSET[80] = {
 const double TARGET_FRAMERATE = 60.0;
 const double TARGET_FRAMETIME_MILLISECONDS = 1000.0 / TARGET_FRAMERATE;
 const double TARGET_FRAMETIME_SECONDS = 1.0 / TARGET_FRAMERATE;
+const int SDL_DELAY_VALUE = 10;
 
 // Error code constants
 const int SUCCESS = 0;
