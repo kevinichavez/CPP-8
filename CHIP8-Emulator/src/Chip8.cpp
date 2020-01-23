@@ -283,7 +283,7 @@ void Chip8::emulateCycle() {
 						continue;
 
 					// Check if bit is already set
-					if (gfx[V[x] + col][V[y + row]] == 1)
+					if (gfx[V[x] + col][V[y] + row] == 1)
 						V[0xF] = 1;
 
 					// XOR the bit using 1 to flip it
