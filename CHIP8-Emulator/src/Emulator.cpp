@@ -242,6 +242,6 @@ double Emulator::getFPS() {
 		return 0;
 	double total = 0;
 	for (int i = 0; i < MAX_STORED_FPS_VALS; i++)
-		total += m_previousFPSarray[i];
+		total += m_previousFPS[i];
 	return (total / MAX_STORED_FPS_VALS);
 }
