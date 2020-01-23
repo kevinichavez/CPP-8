@@ -168,7 +168,8 @@ int Emulator::runGame() {
 					std::cout << "Emulation speed sped up to " << (int)(speed * 100 + 0.5) << "%\n";
 				}
 				else if (keystate[SDL_SCANCODE_SLASH]) {
-					if (chip.wrapIsEnabled()) {
+					std::cout << "Sprite Wrap ";
+					if (!chip.wrapIsEnabled()) {
 						chip.enableSpriteWrap();
 						std::cout << "enabled\n";
 					}
