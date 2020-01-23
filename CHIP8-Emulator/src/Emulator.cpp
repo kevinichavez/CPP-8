@@ -89,6 +89,8 @@ void Emulator::drawScreen() {
 	++m_totalFrames;
 }
 
+// TODO: Replace with code that'll allow rebinding
+// Translate keyboard input to CHIP-8 buttons
 void Emulator::sendInput(const uint8_t* ks, bool keys[]) {
 	keys[0x1] = ks[SDL_SCANCODE_1]; keys[0x2] = ks[SDL_SCANCODE_2]; keys[0x3] = ks[SDL_SCANCODE_3]; keys[0xC] = ks[SDL_SCANCODE_4];
 	keys[0x4] = ks[SDL_SCANCODE_Q]; keys[0x5] = ks[SDL_SCANCODE_W]; keys[0x6] = ks[SDL_SCANCODE_E]; keys[0xD] = ks[SDL_SCANCODE_R];
