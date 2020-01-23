@@ -47,7 +47,7 @@ void Chip8::init() {
 		keys[i] = false;
 
 	// Reset wrap flag
-	wrapFlag = false;
+	wrapFlag = true;
 
 	// Reset timer counter
 	lastTime = SDL_GetTicks();
