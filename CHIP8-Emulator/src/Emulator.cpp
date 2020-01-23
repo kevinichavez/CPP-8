@@ -14,7 +14,7 @@ Emulator::Emulator(uint16_t flags) {
 }
 
 void Emulator::reset() {
-	m_fpsTimer.stop();
+	m_numStoredFPS = 0;
 	m_scaleWidth = DEFAULT_SCALE;
 	m_scaleHeight = DEFAULT_SCALE;
 	m_width = CH8_WIDTH * m_scaleWidth;
@@ -27,9 +27,7 @@ void Emulator::reset() {
 }
 
 void Emulator::togglePause() {
-	if (m_paused)
-		m_fpsTimer.unpause();
-	else m_fpsTimer.pause();
+	
 
 	m_paused = !m_paused;
 }
@@ -117,8 +115,6 @@ int Emulator::runGame() {
 		SDL_WINDOW_SHOWN
 	);
 
-	SDL_GL_SetSwapInterval(0);
-
 	if (m_gameWindow == NULL) {
 		std::cerr << "Could not create window. SDL Error: " << SDL_GetError() << std::endl;
 		return ERR_INIT_SDL;
@@ -146,16 +142,10 @@ int Emulator::runGame() {
 	double speed = 1.0;
 	uint64_t prevFrame = SDL_GetPerformanceCounter();
 	uint64_t currentFrame;
-	double secondsBetweenFrames;
+	double secondsBetweenFrames, frameDiff;
 	std::string title;
 	m_paused = false;
-	m_fpsTimer.start();
-	if (avgSleep.valid())
-		m_useSDLdelay = (avgSleep.get() <= TARGET_FRAMETIME_SECONDS);
-	else {
-		quit = true;
-		std::cerr << "There was an error in the async call to getAvgSleep";
-	}
+	m_numStoredFPS = 0;
 
 	// main loop
 	while (!quit) {
@@ -176,7 +166,7 @@ int Emulator::runGame() {
 					std::cout << "Emulation speed sped up to " << (int)(speed * 100 + 0.5) << "%\n";
 				}
 				else if (keystate[SDL_SCANCODE_SLASH]) {
-					std::cout << "Current FPS: " << (int)(getAvgFPS() + 0.5) << '\n';
+					std::cout << "Current FPS: " << (int)(getFPS() + 0.5) << '\n';
 				}
 				else if (keystate[SDL_SCANCODE_ESCAPE]) {
 					if (m_paused)
@@ -202,19 +192,21 @@ int Emulator::runGame() {
 			sendInput(keystate, keys);
 
 			chip.emulateCycle();
+			chip.decrTimers();
 
 			// Redraw the screen if CHIP-8 drawflag was set
 			if (chip.shouldDraw()) {
-
 				drawScreen();
 
+				// Slow down emulation speed
 				if (m_throttleSpeed) {
-					if(m_useSDLdelay)
+					if (m_useSDLdelay)
 						SDL_Delay(SDL_DELAY_VALUE);
 
 					do {
 						currentFrame = SDL_GetPerformanceCounter();
-						secondsBetweenFrames = (double) (currentFrame - prevFrame) / (double) SDL_GetPerformanceFrequency();
+						frameDiff = currentFrame - prevFrame;
+						secondsBetweenFrames = frameDiff / (double)SDL_GetPerformanceFrequency();
 					} while (secondsBetweenFrames < TARGET_FRAMETIME_SECONDS * (1.0 / speed));
 
 					prevFrame = currentFrame;
@@ -222,7 +214,8 @@ int Emulator::runGame() {
 
 			}
 		}
-		else SDL_Delay(10);
+		else if (m_throttleSpeed && m_useSDLdelay)
+			SDL_Delay(SDL_DELAY_VALUE);
 		
 	}
 
@@ -234,13 +227,12 @@ int Emulator::runGame(std::string path) {
 	return runGame();
 }
 
-double Emulator::getAvgFPS() {
-	// we divide by 1000 to get time passed in seconds
-	double avg = m_totalFrames / (m_fpsTimer.getTicks() / 1000.0);
-
-	// When total number of ticks is low, average will be too high due to the math, so we correct it here
-	if (avg > 2000000)
+// Returns average of time between last 10 frames
+double Emulator::getFPS() {
+	if (m_numStoredFPS != MAX_STORED_FPS_VALS)
 		return 0;
-
-	return avg;
+	double total = 0;
+	for (int i = 0; i < MAX_STORED_FPS_VALS; i++)
+		total += m_previousFPSarray[i];
+	return (total / MAX_STORED_FPS_VALS);
 }

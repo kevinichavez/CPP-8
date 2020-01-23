@@ -31,6 +31,7 @@ const double TARGET_FRAMERATE = 60.0;
 const double TARGET_FRAMETIME_MILLISECONDS = 1000.0 / TARGET_FRAMERATE;
 const double TARGET_FRAMETIME_SECONDS = 1.0 / TARGET_FRAMERATE;
 const int SDL_DELAY_VALUE = 10;
+const int MAX_STORED_FPS_VALS = 10;
 
 // Error code constants
 const int SUCCESS = 0;

@@ -70,8 +70,10 @@ void Chip8::emulateCycle() {
 	// Get opcode
 	uint16_t opcode = (memory[pc] << 8) | memory[pc + 1];
 
-	// Get V register identifiers
+	// Get lower 4 bits of high byte of the instruction
 	uint8_t x = (opcode >> 8) & 0x0F;
+
+	// Get upper 4 bits of low byte of instruction
 	uint8_t y = (opcode >> 4) & 0x0F;
 
 	// Decode opcode

@@ -4,7 +4,6 @@
 #include <string>
 #include "Chip8.h"
 #include <SDL.h>
-#include "timer.h"
 
 class Emulator {
 public:
@@ -28,15 +27,16 @@ private:
 	SDL_Renderer* m_renderer;
 	SDL_Texture* m_texture;
 	int m_width, m_height, m_scaleWidth, m_scaleHeight;
-	Timer m_fpsTimer;
 	unsigned long m_totalFrames;
 	bool m_paused;
 	bool m_throttleSpeed;
 	bool m_useSDLdelay;
+	double m_previousFPSarray[MAX_STORED_FPS_VALS];
+	int m_numStoredFPS;
 
 	void drawScreen();
 	void sendInput(const uint8_t* ks, bool keys[]);
-	double getAvgFPS();
+	double getFPS();
 };
 
 #endif
