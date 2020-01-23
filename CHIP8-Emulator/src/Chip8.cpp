@@ -249,19 +249,27 @@ void Chip8::emulateCycle() {
 		// VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesn’t happen
 
 		// Get m_height of sprite
-		int m_height = opcode & 0x0F;
+		int spriteHeight = opcode & 0x0F;
 
 		// Reset VF Register since we don't know if there was collision yet
 		V[0xF] = 0;
 
+		// We will store the coordinates of the pixel here
+		int pX, pY;
+
+		// We will store the current row of the sprite here
+		uint8_t spriteRow;
+
 		// Loop for number of rows the sprite takes up
-		for (int row = 0; row < m_height; row++) {
+		for (int row = 0; row < spriteHeight; row++) {
 
 			// Get one row of sprite at a time
-			uint8_t spriteRow = memory[I + row];
+			spriteRow = memory[I + row];
 
 			// Each sprite is 8 pixels wide
-			for (int col = 0; col < 8; col++) {
+			for (int col = 0; col < CH8_MAX_SPRITE_WIDTH; col++) {
+				pX = V[x] + col;
+				pY = V[y] + row;
 
 				// Get bit to check if it's set
 				uint8_t bit = spriteRow & (0x80 >> col);
@@ -269,25 +277,23 @@ void Chip8::emulateCycle() {
 				// Check if bit is set
 				if (bit) {
 
-					// Check for wraparound
-					if (V[x] + col >= CH8_WIDTH) {
-						if (wrapFlag) {
-							// TODO: Fix this!
-							// Wrap X value to other side of screen
-							V[x] = CH8_WIDTH % V[x];
-						}
+					// Check whether to wrap x-axis
+					if (pX >= CH8_WIDTH) {
+						if (wrapFlag)
+							pX %= CH8_WIDTH;
 						else continue;
 					}
 
-					if (V[y] + row > CH8_HEIGHT)
+					// We won't process this pixel if it's out of bounds on the y-axis
+					if (pY > CH8_HEIGHT)
 						continue;
 
 					// Check if bit is already set
-					if (gfx[V[x] + col][V[y] + row] == 1)
+					if (gfx[pX][pY] == 1)
 						V[0xF] = 1;
 
 					// XOR the bit using 1 to flip it
-					gfx[V[x] + col][V[y] + row] ^= 1;
+					gfx[pX][pY] ^= 1;
 				}
 
 			}
