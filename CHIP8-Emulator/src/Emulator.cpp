@@ -5,8 +5,6 @@
 #include <cstdint>
 #include "constants.h"
 
-double getMaxSleep();
-
 Emulator::Emulator() {
 	reset();
 }
