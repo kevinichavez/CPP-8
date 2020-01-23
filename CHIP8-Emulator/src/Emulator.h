@@ -31,7 +31,7 @@ private:
 	bool m_paused;
 	bool m_throttleSpeed;
 	bool m_useSDLdelay;
-	double m_previousFPSarray[MAX_STORED_FPS_VALS];
+	double m_previousFPS[MAX_STORED_FPS_VALS];
 	int m_numStoredFPS;
 
 	void drawScreen();

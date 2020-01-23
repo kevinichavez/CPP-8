@@ -37,6 +37,8 @@ public:
 	// Turn sprite wrapping off
 	void disableSpriteWrap() { wrapFlag = false; }
 
+	bool wrapIsEnabled() { return wrapFlag; }
+
 	// Decrement the timers
 	void decrTimers();
 
