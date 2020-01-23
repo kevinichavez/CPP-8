@@ -71,10 +71,10 @@ void Chip8::emulateCycle() {
 	uint16_t opcode = (memory[pc] << 8) | memory[pc + 1];
 
 	// Get lower 4 bits of high byte of the instruction
-	uint8_t x = (opcode >> 8) & 0x0F;
+	uint8_t x = memory[pc] & 0x0F;
 
 	// Get upper 4 bits of low byte of instruction
-	uint8_t y = (opcode >> 4) & 0x0F;
+	uint8_t y = (memory[pc + 1] & 0xF0) >> 4;
 
 	// Decode opcode
 	switch (opcode & 0xF000) {
