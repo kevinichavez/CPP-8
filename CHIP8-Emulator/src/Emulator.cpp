@@ -21,6 +21,7 @@ Emulator::Emulator(uint16_t flags) {
 }
 
 Emulator::~Emulator() {
+	SDL_CloseAudioDevice(m_audioDev);
 	SDL_Quit();
 }
 
