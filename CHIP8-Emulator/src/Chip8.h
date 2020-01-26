@@ -29,7 +29,11 @@ public:
 	// Loads ROM file into memory
 	int loadRom(std::string name);
 
+	// Get current value of sound timer
 	uint16_t getSoundTimer() const { return sTimer; }
+
+	// Check if the soundTimer was given a new value since it was last read
+	bool isAudioUpdated();
 
 	// Turn sprite wrapping to the other side of the screen on
 	void enableSpriteWrap() { wrapFlag = true; }
@@ -37,12 +41,15 @@ public:
 	// Turn sprite wrapping off
 	void disableSpriteWrap() { wrapFlag = false; }
 
+	// Check if sprite wrapping is on or off
+	bool wrapIsEnabled() { return wrapFlag; }
+
 	// Decrement the timers
 	void decrTimers();
 
 private:
 	// Hardware CHIP-8 is on typically has 4096 8-bit memory locations
-	uint8_t memory[CH8_MESIZE];
+	uint8_t memory[CH8_MEM_SIZE];
 
 	// CHIP-8 has 16 8-bit data registers named V0 through VF
 	uint8_t V[16];
@@ -67,7 +74,6 @@ private:
 
 	// Keeps track of how many milliseconds passed when timers last updated
 	uint32_t lastTime;
-	uint32_t accumulator;
 
 	// Flag that determines whether screen should be redrawn
 	bool drawFlag;
@@ -83,6 +89,9 @@ private:
 
 	// Increment program counter
 	void incrPC() { pc += 2; }
+
+	//
+	bool soundTimerIsUpdated;
 };
 
 #endif

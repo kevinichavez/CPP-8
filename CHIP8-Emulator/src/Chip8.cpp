@@ -7,16 +7,11 @@
 void unknownOpcode(uint16_t opcode);
 
 Chip8::Chip8() {
-	// Clear first 0x200 bytes of memory
-	for (int i = 0; i < 0x200; i++)
-		memory[i] = 0;
-
-	// Load in fontset
-	for (int i = 0; i < 80; i++)
-		memory[i] = CH8_FONTSET[i];
+	init();
 }
 
 void Chip8::init() {
+
 	// Program counter starts at 0x200
 	pc = 0x200;
 	
@@ -38,7 +33,7 @@ void Chip8::init() {
 		stack[i] = 0;
 
 	// Clear memory
-	for (int i = pc; i < CH8_MESIZE; i++)
+	for (int i = pc; i < CH8_MEM_SIZE; i++)
 		memory[i] = 0;
 
 	// Reset delay timer
@@ -52,11 +47,21 @@ void Chip8::init() {
 		keys[i] = false;
 
 	// Reset wrap flag
-	wrapFlag = false;
+	wrapFlag = true;
 
 	// Reset timer counter
 	lastTime = SDL_GetTicks();
-	accumulator = 0;
+
+	// Clear first 0x200 bytes of memory
+	for (int i = 0; i < 0x200; i++)
+		memory[i] = 0;
+
+	// Load in fontset
+	for (int i = 0; i < 80; i++)
+		memory[i] = CH8_FONTSET[i];
+
+	soundTimerIsUpdated = false;
+
 }
 
 void Chip8::emulateCycle() {
@@ -67,9 +72,11 @@ void Chip8::emulateCycle() {
 	// Get opcode
 	uint16_t opcode = (memory[pc] << 8) | memory[pc + 1];
 
-	// Get V register identifiers
-	uint8_t x = (opcode >> 8) & 0x0F;
-	uint8_t y = (opcode >> 4) & 0x0F;
+	// Get lower 4 bits of high byte of the instruction
+	uint8_t x = memory[pc] & 0x0F;
+
+	// Get upper 4 bits of low byte of instruction
+	uint8_t y = (memory[pc + 1] & 0xF0) >> 4;
 
 	// Decode opcode
 	switch (opcode & 0xF000) {
@@ -90,7 +97,6 @@ void Chip8::emulateCycle() {
 
 		default:
 			std::cerr << "Trying to call RCA 1802 at " << std::hex << (0x0FFF & opcode) << std::dec << " (?)" << std::endl;
-			exit(-1);
 		}
 		break;
 
@@ -180,7 +186,7 @@ void Chip8::emulateCycle() {
 			if (V[x] < V[y])
 				V[0xF] = 0;
 			else V[0xF] = 1;
-			V[x] = V[x] - V[y];
+			V[x] -= V[y];
 			incrPC();
 			break;
 
@@ -196,7 +202,7 @@ void Chip8::emulateCycle() {
 			if (V[x] > V[y])
 				V[0xF] = 0;
 			else V[0xF] = 1;
-			V[x] = V[y] - V[x];;
+			V[x] = V[y] - V[x];
 			incrPC();
 			break;
 
@@ -231,32 +237,40 @@ void Chip8::emulateCycle() {
 
 	case 0xC000: {
 		// CXNN: Sets VX to the result of a bitwise AND operation on a random number between 0 and 255 and NN
-		uint8_t rng = rand() % 0xFF;
+		uint8_t rng = rand();
 		V[x] = rng & (opcode & 0x00FF);
 		incrPC();
 		break;
 	}
 
 	case 0xD000: {
-		// DXYN: Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels
+		// DXYN: Draws a sprite at coordinate (VX, VY) that has a m_width of 8 pixels and a m_height of N pixels
 		// Each row of 8 pixels is read as bit-coded starting from memory location I
 		// I value doesn’t change after the execution of this instruction
 		// VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesn’t happen
 
-		// Get height of sprite
-		int height = opcode & 0x0F;
+		// Get m_height of sprite
+		int spriteHeight = opcode & 0x0F;
 
 		// Reset VF Register since we don't know if there was collision yet
 		V[0xF] = 0;
 
+		// We will store the coordinates of the pixel here
+		uint8_t pX, pY;
+
+		// We will store the current row of the sprite here
+		uint8_t spriteRow;
+
 		// Loop for number of rows the sprite takes up
-		for (int row = 0; row < height; row++) {
+		for (int row = 0; row < spriteHeight; row++) {
 
 			// Get one row of sprite at a time
-			uint8_t spriteRow = memory[I + row];
+			spriteRow = memory[I + row];
 
 			// Each sprite is 8 pixels wide
-			for (int col = 0; col < 8; col++) {
+			for (int col = 0; col < CH8_MAX_SPRITE_WIDTH; col++) {
+				pX = V[x] + col;
+				pY = V[y] + row;
 
 				// Get bit to check if it's set
 				uint8_t bit = spriteRow & (0x80 >> col);
@@ -264,25 +278,23 @@ void Chip8::emulateCycle() {
 				// Check if bit is set
 				if (bit) {
 
-					// Check for wraparound
-					if (V[x] + col >= CH8_WIDTH) {
-						if (wrapFlag) {
-							// TODO: Fix this!
-							// Wrap X value to other side of screen
-							V[x] = CH8_WIDTH % V[x];
-						}
+					// Check whether to wrap around
+					if (pX >= CH8_WIDTH) {
+						if (wrapFlag)
+							pX %= CH8_WIDTH;
 						else continue;
 					}
-
-					if (V[y] + row > CH8_HEIGHT)
-						continue;
-
+					if (pY > CH8_HEIGHT) {
+						if (wrapFlag)
+							pY %= CH8_HEIGHT;
+						else continue;
+					}
 					// Check if bit is already set
-					if (gfx[V[x] + col][V[y + row]] == 1)
+					if (gfx[pX][pY] == 1)
 						V[0xF] = 1;
 
 					// XOR the bit using 1 to flip it
-					gfx[V[x] + col][V[y] + row] ^= 1;
+					gfx[pX][pY] ^= 1;
 				}
 
 			}
@@ -331,7 +343,7 @@ void Chip8::emulateCycle() {
 					V[x] = keys[i];
 					i = 0xF;
 				}
-			if (keyIsPressed)
+			if (!keyIsPressed)
 				return;
 			incrPC();
 			break;
@@ -346,12 +358,13 @@ void Chip8::emulateCycle() {
 		case 0x0018:
 			// FX18: Sets the sound timer to VX
 			sTimer = V[x];
+			soundTimerIsUpdated = true;
 			incrPC();
 			break;
 
 		case 0x001E: {
 			// FX1E: Adds VX to I. VF is set to 1 when there is a range overflow and 0 when there isn't
-			int vxisum = V[x] + I;
+			uint32_t vxisum = V[x] + I;
 			if (vxisum > 0x0FFF)
 				V[0xF] = 1;
 			else V[0xF] = 0;
@@ -362,7 +375,8 @@ void Chip8::emulateCycle() {
 
 		case 0x0029:
 			// FX29: Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font
-			I = V[x] * 5;
+			// Since we know that the font is stored at offset 0x0, we can just set I equal to Vx multiplied by the width
+			I = V[x] * CH8_FONT_WIDTH;
 			incrPC();
 			break;
 
@@ -406,8 +420,8 @@ void Chip8::setKeys(bool a[]) {
 
 int Chip8::loadRom(std::string name) {
 
-	// First 0x200 bytes reserved for interpretter (FONT files in this emulator's case)
-	const int MAX_ROM_SIZE = CH8_MESIZE - 0x200;
+	// First 0x200 bytes reserved for interpretter (font in our case)
+	const int MAX_ROM_SIZE = CH8_MEM_SIZE - 0x200;
 
 	char tempBuffer[MAX_ROM_SIZE];
 
@@ -425,7 +439,7 @@ int Chip8::loadRom(std::string name) {
 	int romSize = rom.tellg();
 	if (romSize > MAX_ROM_SIZE) {
 		std::cerr << "File too large!";
-		return -2;
+		return ERR_ROM_TOO_BIG;
 	}
 
 	// Reset 
@@ -439,10 +453,10 @@ int Chip8::loadRom(std::string name) {
 
 	// Check if ROM was read into temporary buffer successfully
 	if (rom)
-		std::cout << "all " << rom.gcount() << " bytes read successfully.";
+		std::cout << "All " << rom.gcount() << " bytes read successfully.\n";
 	else {
 		std::cerr << "error: only " << rom.gcount() << "bytes could be read";
-		return -3;
+		return ERR_ROM_READ;
 	}
 
 	rom.close();
@@ -451,31 +465,28 @@ int Chip8::loadRom(std::string name) {
 	for (int i = 0; i < romSize; i++)
 		memory[0x200 + i] = tempBuffer[i];
 
-	return 0;
+	return SUCCESS;
+}
+
+bool Chip8::isAudioUpdated() {
+	if (soundTimerIsUpdated) {
+		soundTimerIsUpdated = false;
+		return true;
+	}
+	return false;
 }
 
 void Chip8::decrTimers() {
+	uint32_t currTime = SDL_GetTicks();
+	if (currTime - lastTime > TARGET_FRAMETIME_MILLISECONDS) {
+		lastTime = currTime;
 
-	uint32_t curTime = SDL_GetTicks();
-
-	uint32_t timeDelta = curTime - lastTime;
-
-	// Caps deltaTime in case program is suspended
-	if (timeDelta > 100)
-		timeDelta = 100;
-
-	lastTime = curTime;
-
-	accumulator += timeDelta;
-
-	// Targets counting down at 60 Hz
-	while (accumulator > TIMER_RATE) {
 		if (sTimer > 0)
-			sTimer--;
+			--sTimer;
 		if (dTimer > 0)
-			dTimer--;
-		accumulator -= TIMER_RATE;
+			--dTimer;
 	}
+
 }
 
 void Chip8::clearDisp() {
