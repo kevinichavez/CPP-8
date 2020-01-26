@@ -41,4 +41,15 @@ const int ERR_INIT_SDL = 1;
 const int ERR_ROM_READ = -1;
 const int ERR_ROM_TOO_BIG = -2;
 
+// Sound
+const int MEGABYTE = 1048576;
+const int SOUND_BUFFER_SIZE = MEGABYTE * 16;
+const int SOUND_FREQUENCY = 44100;
+const int SOUND_NUM_CHANNELS = 1;
+const int SOUND_NUM_SAMPLES = 1024;
+const int SOUND_DEFAULT_GAIN = 4000;
+const int SOUND_SAMPLE_SIZE = 2;      // sizeof(int16_t)
+const int SOUND_INITIAL_BUFFER_TIME = 10;
+const int SOUND_DEFAULT_PLAY_FREQUENCY = 400;
+
 #endif

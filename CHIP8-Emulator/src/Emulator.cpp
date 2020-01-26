@@ -3,13 +3,49 @@
 #include <SDL.h>
 #include <iostream>
 #include <cstdint>
+#include <cmath>
 #include "constants.h"
 
 Emulator::Emulator() {
-	reset();
+	init();
 }
 
 Emulator::Emulator(uint16_t flags) {
+	init();
+	if (flags & DISABLE_WRAP)
+		chip.disableSpriteWrap();
+	if (flags & DISABLE_SDL_DELAY)
+		m_useSDLdelay = false;
+	if (flags & DISABLE_THROTTLE)
+		m_throttleSpeed = false;
+}
+
+Emulator::~Emulator() {
+	SDL_Quit();
+}
+
+void Emulator::init() {
+
+	// Initialize SDL
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+		std::cerr << "Could not initialize SDL. SDL Error: " << SDL_GetError() << std::endl;
+		exit(1);
+	}
+
+	// Setting up sound
+	SDL_zero(m_spec);
+	m_spec.freq = SOUND_FREQUENCY;
+	m_spec.samples = SOUND_NUM_SAMPLES;
+	m_spec.channels = SOUND_NUM_CHANNELS;
+	m_spec.format = AUDIO_S16SYS;
+	m_spec.callback = NULL;
+
+	m_audioDev = SDL_OpenAudioDevice(NULL, 0, &m_spec, NULL, 0);
+
+	m_gain = SOUND_DEFAULT_GAIN;
+
+	setupWave();
+
 	reset();
 }
 
@@ -22,12 +58,18 @@ void Emulator::reset() {
 	m_gamePath = "";
 	m_totalFrames = 0;
 	m_paused = false;
-	m_throttleSpeed = true;
-	m_useSDLdelay = true;
+	m_isPlayingSound = false;
+	SDL_ClearQueuedAudio(m_audioDev);
 }
 
 void Emulator::togglePause() {
-	
+	if (!m_paused) {
+		SDL_PauseAudioDevice(m_audioDev, 1);
+	}
+	else {
+		if (chip.getSoundTimer() > 0)
+			SDL_PauseAudioDevice(m_audioDev, 0);
+	}
 
 	m_paused = !m_paused;
 }
@@ -145,9 +187,9 @@ int Emulator::runGame() {
 	uint64_t prevFrame = SDL_GetPerformanceCounter();
 	uint64_t currentFrame;
 	double secondsBetweenFrames, frameDiff;
-	std::string title;
 	m_paused = false;
 	m_numStoredFPS = 0;
+	fillAudioQueue(SOUND_INITIAL_BUFFER_TIME);
 
 	// main loop
 	while (!quit) {
@@ -204,6 +246,18 @@ int Emulator::runGame() {
 			chip.emulateCycle();
 			chip.decrTimers();
 
+			if (SDL_GetQueuedAudioSize(m_audioDev) < SOUND_BUFFER_SIZE)
+				pushSample();
+
+			if (!m_isPlayingSound && chip.getSoundTimer() > 0) {
+				m_isPlayingSound = true;
+				SDL_PauseAudioDevice(m_audioDev, 0);
+			}
+			else if (chip.getSoundTimer() == 0) {
+				m_isPlayingSound = false;
+				SDL_PauseAudioDevice(m_audioDev, 1);
+			}
+
 			// Redraw the screen if CHIP-8 drawflag was set
 			if (chip.shouldDraw()) {
 				drawScreen();
@@ -215,6 +269,9 @@ int Emulator::runGame() {
 
 					do {
 						currentFrame = SDL_GetPerformanceCounter();
+						// Fill audio queue while we're waiting
+						if(SDL_GetQueuedAudioSize(m_audioDev) < SOUND_BUFFER_SIZE)
+							pushSample();
 						frameDiff = currentFrame - prevFrame;
 						secondsBetweenFrames = frameDiff / (double)SDL_GetPerformanceFrequency();
 					} while (secondsBetweenFrames < TARGET_FRAMETIME_SECONDS * (1.0 / speed));
@@ -228,6 +285,8 @@ int Emulator::runGame() {
 			SDL_Delay(SDL_DELAY_VALUE);
 		
 	}
+
+	SDL_PauseAudioDevice(m_audioDev, 1);
 
 	return SUCCESS;
 }
@@ -245,4 +304,49 @@ double Emulator::getFPS() {
 	for (int i = 0; i < MAX_STORED_FPS_VALS; i++)
 		total += m_previousFPS[i];
 	return (total / MAX_STORED_FPS_VALS);
+}
+
+void Emulator::fillAudioQueue(int s) {
+	long numSamples = m_spec.freq * s;
+
+	for (long i = 0; i < numSamples; i++) {
+		pushSample();
+	}
+}
+
+void Emulator::setupWave() {
+	m_square.frequency = SOUND_DEFAULT_PLAY_FREQUENCY;
+	m_square.position = 0;
+
+	// Our epsilon is arbitrary
+	const double epsilon = 0.000000001;
+
+	double rad = 0, temp = 0;
+	int16_t sample;
+	for (int i = 0; i < SOUND_FREQUENCY && temp <= (1.0 - epsilon); i++) {
+		rad += ((2 * M_PI) / m_square.frequency);
+
+		// We subtract pi/2 to shift the graph so that we start at -1 and end at 1 to get our cycle
+		temp = sin(rad - (M_PI / 2));
+
+		// Now it's a square wave
+		if (temp > 0)
+			sample = 1;
+		else if (temp < 0)
+			sample = -1;
+		else sample = 0;
+
+		m_square.sampleVals.push_back(sample);
+	}
+
+}
+
+void Emulator::pushSample() {
+	int16_t sample = m_square.sampleVals[m_square.position] * m_gain;
+
+	SDL_QueueAudio(m_audioDev, &sample, sizeof(int16_t));
+	m_square.position++;
+
+	if (m_square.position >= m_square.sampleVals.size())
+		m_square.position = 0;
 }

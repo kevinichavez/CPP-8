@@ -60,6 +60,8 @@ void Chip8::init() {
 	for (int i = 0; i < 80; i++)
 		memory[i] = CH8_FONTSET[i];
 
+	soundTimerIsUpdated = false;
+
 }
 
 void Chip8::emulateCycle() {
@@ -356,6 +358,7 @@ void Chip8::emulateCycle() {
 		case 0x0018:
 			// FX18: Sets the sound timer to VX
 			sTimer = V[x];
+			soundTimerIsUpdated = true;
 			incrPC();
 			break;
 
@@ -463,6 +466,14 @@ int Chip8::loadRom(std::string name) {
 		memory[0x200 + i] = tempBuffer[i];
 
 	return SUCCESS;
+}
+
+bool Chip8::isAudioUpdated() {
+	if (soundTimerIsUpdated) {
+		soundTimerIsUpdated = false;
+		return true;
+	}
+	return false;
 }
 
 void Chip8::decrTimers() {
