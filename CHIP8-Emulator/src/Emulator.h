@@ -6,6 +6,7 @@
 #include <SDL.h>
 #include "constants.h"
 #include <vector>
+#include <queue>
 
 const int DISABLE_WRAP = 0x01;
 const int DISABLE_THROTTLE = 0x02;
@@ -67,7 +68,7 @@ private:
 	bool m_paused;
 	bool m_throttleSpeed;
 	bool m_useSDLdelay;
-	double m_previousFPS[MAX_STORED_FPS_VALS];
+	std::queue<double> m_previousFPS;
 	int m_numStoredFPS;
 
 	// Refresh the screen with what is currently in the Chip 8's gfx array

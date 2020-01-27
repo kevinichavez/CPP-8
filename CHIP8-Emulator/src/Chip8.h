@@ -32,9 +32,6 @@ public:
 	// Get current value of sound timer
 	uint16_t getSoundTimer() const { return sTimer; }
 
-	// Check if the soundTimer was given a new value since it was last read
-	bool isAudioUpdated();
-
 	// Turn sprite wrapping to the other side of the screen on
 	void enableSpriteWrap() { wrapFlag = true; }
 

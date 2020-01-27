@@ -223,6 +223,7 @@ void Chip8::emulateCycle() {
 		if (V[x] != V[y])
 			incrPC();
 		incrPC();
+		break;
 
 	case 0xA000:
 		// ANNN: Sets I to the address NNN
@@ -244,7 +245,7 @@ void Chip8::emulateCycle() {
 	}
 
 	case 0xD000: {
-		// DXYN: Draws a sprite at coordinate (VX, VY) that has a m_width of 8 pixels and a m_height of N pixels
+		// DXYN: Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels
 		// Each row of 8 pixels is read as bit-coded starting from memory location I
 		// I value doesn’t change after the execution of this instruction
 		// VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesn’t happen
@@ -252,7 +253,7 @@ void Chip8::emulateCycle() {
 		// Get m_height of sprite
 		int spriteHeight = opcode & 0x0F;
 
-		// Reset VF Register since we don't know if there was collision yet
+		// Reset VF Register since we don't know if a bit was unset yet
 		V[0xF] = 0;
 
 		// We will store the coordinates of the pixel here
@@ -260,6 +261,8 @@ void Chip8::emulateCycle() {
 
 		// We will store the current row of the sprite here
 		uint8_t spriteRow;
+
+		bool outOfBounds;
 
 		// Loop for number of rows the sprite takes up
 		for (int row = 0; row < spriteHeight; row++) {
@@ -269,26 +272,32 @@ void Chip8::emulateCycle() {
 
 			// Each sprite is 8 pixels wide
 			for (int col = 0; col < CH8_MAX_SPRITE_WIDTH; col++) {
+				outOfBounds = false;
+
 				pX = V[x] + col;
 				pY = V[y] + row;
 
-				// Get bit to check if it's set
+				// Get bit to check if it's set starting from the left
 				uint8_t bit = spriteRow & (0x80 >> col);
 
 				// Check if bit is set
 				if (bit) {
 
-					// Check whether to wrap around
+					// Check whether to wrap around if coordinates are out of bounds
 					if (pX >= CH8_WIDTH) {
 						if (wrapFlag)
 							pX %= CH8_WIDTH;
-						else continue;
+						else outOfBounds = true;
 					}
-					if (pY > CH8_HEIGHT) {
+					if (pX >= CH8_WIDTH) {
 						if (wrapFlag)
-							pY %= CH8_HEIGHT;
-						else continue;
+							pX %= CH8_WIDTH;
+						else outOfBounds = true;
 					}
+
+					if (outOfBounds)
+						continue;
+
 					// Check if bit is already set
 					if (gfx[pX][pY] == 1)
 						V[0xF] = 1;
@@ -466,14 +475,6 @@ int Chip8::loadRom(std::string name) {
 		memory[0x200 + i] = tempBuffer[i];
 
 	return SUCCESS;
-}
-
-bool Chip8::isAudioUpdated() {
-	if (soundTimerIsUpdated) {
-		soundTimerIsUpdated = false;
-		return true;
-	}
-	return false;
 }
 
 void Chip8::decrTimers() {

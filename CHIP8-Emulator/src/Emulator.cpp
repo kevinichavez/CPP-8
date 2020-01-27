@@ -27,6 +27,9 @@ Emulator::~Emulator() {
 
 void Emulator::init() {
 
+	m_useSDLdelay = true;
+	m_throttleSpeed = true;
+
 	// Initialize SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		std::cerr << "Could not initialize SDL. SDL Error: " << SDL_GetError() << std::endl;
@@ -298,14 +301,14 @@ int Emulator::runGame(std::string path) {
 }
 
 // Returns average of time between last 10 frames
-double Emulator::getFPS() {
-	if (m_numStoredFPS != MAX_STORED_FPS_VALS)
-		return 0;
-	double total = 0;
-	for (int i = 0; i < MAX_STORED_FPS_VALS; i++)
-		total += m_previousFPS[i];
-	return (total / MAX_STORED_FPS_VALS);
-}
+//double Emulator::getFPS() {
+//	if (m_numStoredFPS != MAX_STORED_FPS_VALS)
+//		return 0;
+//	double total = 0;
+//	for (int i = 0; i < MAX_STORED_FPS_VALS; i++)
+//		total += m_previousFPS[i];
+//	return (total / MAX_STORED_FPS_VALS);
+//}
 
 void Emulator::fillAudioQueue(int s) {
 	long numSamples = m_spec.freq * s;
