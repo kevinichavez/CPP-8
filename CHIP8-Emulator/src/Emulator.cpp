@@ -327,6 +327,8 @@ void Emulator::setupWave() {
 
 	double rad = 0, temp = 0;
 	int16_t sample;
+
+	// Extract the values of one cycle
 	for (int i = 0; i < SOUND_FREQUENCY && temp <= (1.0 - epsilon); i++) {
 		rad += ((2 * M_PI) / m_square.frequency);
 
