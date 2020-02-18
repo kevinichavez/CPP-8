@@ -43,7 +43,7 @@ const int ERR_ROM_TOO_BIG = -2;
 
 // Sound
 const int MEGABYTE = 1048576;
-const int SOUND_BUFFER_SIZE = MEGABYTE * 16;
+const int SOUND_BUFFER_SIZE = MEGABYTE * 2;
 const int SOUND_FREQUENCY = 44100;
 const int SOUND_NUM_CHANNELS = 1;
 const int SOUND_NUM_SAMPLES = 1024;
