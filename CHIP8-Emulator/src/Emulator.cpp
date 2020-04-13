@@ -42,7 +42,8 @@ void Emulator::init() {
 	m_spec.samples = SOUND_NUM_SAMPLES;
 	m_spec.channels = SOUND_NUM_CHANNELS;
 	m_spec.format = AUDIO_S16SYS;
-	m_spec.callback = NULL;
+	m_spec.callback = callbackWrapper;
+	m_spec.userdata = this;
 
 	m_audioDev = SDL_OpenAudioDevice(NULL, 0, &m_spec, NULL, 0);
 
@@ -193,7 +194,6 @@ int Emulator::runGame() {
 	double secondsBetweenFrames, frameDiff;
 	m_paused = false;
 	m_numStoredFPS = 0;
-	fillAudioQueue(SOUND_INITIAL_BUFFER_TIME);
 
 	// main loop
 	while (!quit) {
@@ -250,14 +250,11 @@ int Emulator::runGame() {
 			chip.emulateCycle();
 			chip.decrTimers();
 
-			if (SDL_GetQueuedAudioSize(m_audioDev) < SOUND_BUFFER_SIZE)
-				pushSample();
-
 			if (!m_isPlayingSound && chip.getSoundTimer() > 0) {
 				m_isPlayingSound = true;
 				SDL_PauseAudioDevice(m_audioDev, 0);
 			}
-			else if (chip.getSoundTimer() == 0) {
+			else if (m_isPlayingSound && chip.getSoundTimer() == 0) {
 				m_isPlayingSound = false;
 				SDL_PauseAudioDevice(m_audioDev, 1);
 			}
@@ -270,12 +267,9 @@ int Emulator::runGame() {
 				if (m_throttleSpeed) {
 					if (m_useSDLdelay)
 						SDL_Delay(SDL_DELAY_VALUE);
-
+					// busy loop for the rest of the time
 					do {
 						currentFrame = SDL_GetPerformanceCounter();
-						// Fill audio queue while we're waiting
-						if(SDL_GetQueuedAudioSize(m_audioDev) < SOUND_BUFFER_SIZE)
-							pushSample();
 						frameDiff = currentFrame - prevFrame;
 						secondsBetweenFrames = frameDiff / (double)SDL_GetPerformanceFrequency();
 					} while (secondsBetweenFrames < TARGET_FRAMETIME_SECONDS * (1.0 / speed));
@@ -310,14 +304,6 @@ int Emulator::runGame(std::string path) {
 //	return (total / MAX_STORED_FPS_VALS);
 //}
 
-void Emulator::fillAudioQueue(int s) {
-	long numSamples = m_spec.freq * s;
-
-	for (long i = 0; i < numSamples; i++) {
-		pushSample();
-	}
-}
-
 void Emulator::setupWave() {
 	m_square.frequency = SOUND_DEFAULT_PLAY_FREQUENCY;
 	m_square.position = 0;
@@ -347,12 +333,20 @@ void Emulator::setupWave() {
 
 }
 
-void Emulator::pushSample() {
+void Emulator::callbackWrapper(void* userdata, Uint8* stream, int len) {
+	Emulator* emu = (Emulator*)userdata;
+	for (int i = 0; i < len; ++i) {
+		stream[i] = emu->getSample();
+	}
+}
+
+uint16_t Emulator::getSample() {
 	int16_t sample = m_square.sampleVals[m_square.position] * m_gain;
 
-	SDL_QueueAudio(m_audioDev, &sample, sizeof(int16_t));
 	m_square.position++;
 
 	if (m_square.position >= m_square.sampleVals.size())
 		m_square.position = 0;
+
+	return sample;
 }

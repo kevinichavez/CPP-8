@@ -7,6 +7,7 @@
 #include "constants.h"
 #include <vector>
 #include <queue>
+#include <cstdint>
 
 const int DISABLE_WRAP = 0x01;
 const int DISABLE_THROTTLE = 0x02;
@@ -50,6 +51,9 @@ public:
 
 	// Toggle gamespeed throttle
 	void toggleThrottle() { m_throttleSpeed = !m_throttleSpeed; }
+
+	// get value of next sample; we need this for 
+	uint16_t getSample();
 
 private:
 	Chip8 chip;
@@ -105,14 +109,12 @@ private:
 		std::vector<int16_t> sampleVals;
 	} m_square;
 
-	// Buffer s seconds of sound
-	void fillAudioQueue(int s);
-
 	// Load a single cyle of a wave at a given frequency
 	void setupWave();
 
-	// Push a single sample to SDL
-	void pushSample();
+	// what SDL will call when it needs audio to fill the buffer
+	static void callbackWrapper(void* userdata, Uint8* stream, int len);
+
 };
 
 #endif
