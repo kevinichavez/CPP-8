@@ -86,13 +86,11 @@ void Chip8::emulateCycle() {
 			// 00E0: Clears the screen
 			clearDisp();
 			drawFlag = true;
-			incrPC();
 			break;
 
 		case 0x00EE:
 			// 00EE: Return from subroutine
 			pc = stack[--sp];
-			incrPC();
 			break;
 
 		default:
@@ -103,45 +101,42 @@ void Chip8::emulateCycle() {
 	case 0x1000:
 		// 1NNN: Jumps to address NNN
 		pc = opcode & 0x0FFF;
+		decrPC();
 		break;
 
 	case 0x2000:
 		// 2NNN: Call function at NNN
 		stack[sp++] = pc;
 		pc = opcode & 0x0FFF;
+		decrPC();
 		break;
 
 	case 0x3000:
 		// 3XNN: Skips the next instruction if VX equals NN
 		if (V[x] == (opcode & 0x00FF))
 			incrPC();
-		incrPC();
 		break;
 
 	case 0x4000:
 		// 4XNN: Skips the next instruction if VX doesn't equal NN
 		if (V[x] != (opcode & 0x00FF))
 			incrPC();
-		incrPC();
 		break;
 
 	case 0x5000:
 		// 5XY0: Skips the next instruction if VX equals VY
 		if (V[x] == V[y])
 			incrPC();
-		incrPC();
 		break;
 
 	case 0x6000:
 		// 6XNN: Sets VX to NN
 		V[x] = opcode & 0x00FF;
-		incrPC();
 		break;
 
 	case 0x7000:
 		// 7XNN: Adds NN to VX (carry flag unchanged)
 		V[x] += (opcode & 0x00FF);
-		incrPC();
 		break;
 
 	case 0x8000:
@@ -149,25 +144,21 @@ void Chip8::emulateCycle() {
 		case 0x0000:
 			// 8XY0: Sets VX to value of VY
 			V[x] = V[y];
-			incrPC();
 			break;
 
 		case 0x0001:
 			// 8XY1: Sets VX to VX OR VY
 			V[x] |= V[y];
-			incrPC();
 			break;
 
 		case 0x0002:
 			// 8XY2: Sets VX to VX AND VY
 			V[x] &= V[y];
-			incrPC();
 			break;
 
 		case 0x0003:
 			// 8XY3: Sets VX to VX XOR VY
 			V[x] ^= V[y];
-			incrPC();
 			break;
 
 		case 0x0004: {
@@ -177,7 +168,6 @@ void Chip8::emulateCycle() {
 				V[0xF] = 1;
 			else V[0xF] = 0;
 			V[x] = sum;
-			incrPC();
 			break;
 		}
 
@@ -187,14 +177,12 @@ void Chip8::emulateCycle() {
 				V[0xF] = 0;
 			else V[0xF] = 1;
 			V[x] -= V[y];
-			incrPC();
 			break;
 
 		case 0x0006:
 			// 8XY6: Stores the least significant bit of VX in VF and then shifts VX to the right by 1
 			V[0xF] = V[x] & 0x01;
 			V[x] >>= 1;
-			incrPC();
 			break;
 
 		case 0x0007:
@@ -203,14 +191,12 @@ void Chip8::emulateCycle() {
 				V[0xF] = 0;
 			else V[0xF] = 1;
 			V[x] = V[y] - V[x];
-			incrPC();
 			break;
 
 		case 0x000E:
 			// 8XYE: Stores the most significant bit of VX in VF and then shifts VX to the left by 1
 			V[0xF] = V[x] >> 7;
 			V[x] <<= 1;
-			incrPC();
 			break;
 
 		default:
@@ -222,25 +208,23 @@ void Chip8::emulateCycle() {
 		// 9XY0: Skips the next instruction if VX doesn't equal VY
 		if (V[x] != V[y])
 			incrPC();
-		incrPC();
 		break;
 
 	case 0xA000:
 		// ANNN: Sets I to the address NNN
 		I = opcode & 0x0FFF;
-		incrPC();
 		break;
 
 	case 0xB000:
 		// BNNN: Jumps to the address NNN plus V0
 		pc = V[0x0] + (opcode & 0x0FFF);
+		decrPC();
 		break;
 
 	case 0xC000: {
 		// CXNN: Sets VX to the result of a bitwise AND operation on a random number between 0 and 255 and NN
 		uint8_t rng = rand();
 		V[x] = rng & (opcode & 0x00FF);
-		incrPC();
 		break;
 	}
 
@@ -310,7 +294,6 @@ void Chip8::emulateCycle() {
 		}
 
 		drawFlag = true;
-		incrPC();
 		break;
 	}
 
@@ -320,14 +303,12 @@ void Chip8::emulateCycle() {
 			// EX9E: Skips the next instruction if the key stored in VX is pressed
 			if (keys[V[x]])
 				incrPC();
-			incrPC();
 			break;
 			
 		case 0x00A1:
 			// EXA1: Skips the next instruction if the key stored in VX isn't pressed
 			if (!keys[V[x]])
 				incrPC();
-			incrPC();
 			break;
 
 		default:
@@ -340,7 +321,6 @@ void Chip8::emulateCycle() {
 		case 0x0007:
 			// FX07: Sets VX to the value of the delay timer
 			V[x] = dTimer;
-			incrPC();
 			break;
 
 		case 0x000A: {
@@ -353,22 +333,19 @@ void Chip8::emulateCycle() {
 					i = 0xF;
 				}
 			if (!keyIsPressed)
-				return;
-			incrPC();
+				decrPC();
 			break;
 		}
 
 		case 0x0015:
 			// FX15: Sets the delay timer to VX
 			dTimer = V[x];
-			incrPC();
 			break;
 
 		case 0x0018:
 			// FX18: Sets the sound timer to VX
 			sTimer = V[x];
 			soundTimerIsUpdated = true;
-			incrPC();
 			break;
 
 		case 0x001E: {
@@ -378,7 +355,6 @@ void Chip8::emulateCycle() {
 				V[0xF] = 1;
 			else V[0xF] = 0;
 			I = vxisum;
-			incrPC();
 			break;
 		}
 
@@ -386,7 +362,6 @@ void Chip8::emulateCycle() {
 			// FX29: Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font
 			// Since we know that the font is stored at offset 0x0, we can just set I equal to Vx multiplied by the width
 			I = V[x] * CH8_FONT_WIDTH;
-			incrPC();
 			break;
 
 		case 0x0033:
@@ -394,21 +369,18 @@ void Chip8::emulateCycle() {
 			memory[I] = V[x] / 100;
 			memory[I + 1] = (V[x] % 100 ) / 10;
 			memory[I + 2] = V[x] % 10;
-			incrPC();
 			break;
 
 		case 0x0055:
 			// FX55: Stores V0 to VX (including VX) in memory starting at address I. The offset from I is increased by 1 for each value written, but I itself is left unmodified
 			for (int i = 0; i <= x; i++)
 				memory[I + i] = V[i];
-			incrPC();
 			break;
 
 		case 0x0065:
 			// FX65: Fills V0 to VX (including VX) with values from memory starting at address I. I is left unmodified
 			for (int i = 0; i <= x; i++)
 				V[i] = memory[I + i];
-			incrPC();
 			break;
 
 		default:
@@ -420,6 +392,8 @@ void Chip8::emulateCycle() {
 		unknownOpcode(opcode);
 	}
 
+	// go to next instruction
+	incrPC();
 }
 
 void Chip8::setKeys(bool a[]) {

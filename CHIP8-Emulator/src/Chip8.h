@@ -87,6 +87,9 @@ private:
 	// Increment program counter
 	void incrPC() { pc += 2; }
 
+	// Decrement the program counter; used for instructions that do not increment the PC
+	void decrPC() { pc -= 2; }
+
 	//
 	bool soundTimerIsUpdated;
 };
