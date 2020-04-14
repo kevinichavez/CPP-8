@@ -273,12 +273,13 @@ void Chip8::emulateCycle() {
 							pX %= CH8_WIDTH;
 						else outOfBounds = true;
 					}
-					if (pX >= CH8_WIDTH) {
+					/* Wrap the Y-coordinates?
+					if (pY >= CH8_HEIGHT) {
 						if (wrapFlag)
-							pX %= CH8_WIDTH;
+							pY %= CH8_WIDTH;
 						else outOfBounds = true;
 					}
-
+					*/
 					if (outOfBounds)
 						continue;
 

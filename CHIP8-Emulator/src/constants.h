@@ -44,7 +44,7 @@ const int ERR_ROM_TOO_BIG = -2;
 // Sound
 const int SOUND_FREQUENCY = 44100;
 const int SOUND_NUM_CHANNELS = 1;
-const int SOUND_NUM_SAMPLES = 1024;
+const int SOUND_NUM_SAMPLES = 2048;
 const int SOUND_DEFAULT_GAIN = 4000;
 const int SOUND_DEFAULT_PLAY_FREQUENCY = 400;
 
