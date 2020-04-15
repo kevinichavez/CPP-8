@@ -23,9 +23,6 @@ public:
 	// Passes input to emulator
 	void setKeys(bool a[]);
 
-	// Array that stores current state of pixels on 64 * 32 screen
-	uint8_t gfx[CH8_WIDTH][CH8_HEIGHT];
-
 	// Loads ROM file into memory
 	int loadRom(std::string name);
 
@@ -43,6 +40,9 @@ public:
 
 	// Decrement the timers
 	void decrTimers();
+
+	// Gets the status of a pixel at any particular (x, y) coordinate in the gfx array
+	uint8_t getPixel(int x, int y) { return gfx[x][y]; }
 
 private:
 	// Hardware CHIP-8 is on typically has 4096 8-bit memory locations
@@ -81,6 +81,9 @@ private:
 	// Determines what should happen if sprite goes off screen on the x-axis
 	bool wrapFlag;
 
+	// Array that stores current state of pixels on 64 * 32 screen
+	uint8_t gfx[CH8_WIDTH][CH8_HEIGHT];
+
 	// Clear the screen
 	void clearDisp();
 
@@ -92,6 +95,8 @@ private:
 
 	//
 	bool soundTimerIsUpdated;
+
+
 };
 
 #endif

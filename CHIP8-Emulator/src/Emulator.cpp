@@ -117,7 +117,7 @@ void Emulator::drawScreen() {
 	// Make every non-zero value in the graphics array a white rectangle
 	for (int i = 0; i < CH8_HEIGHT; i++) {
 		for (int j = 0; j < CH8_WIDTH; j++) {
-			if (chip.gfx[j][i]) {
+			if (chip.getPixel(i, j)) {
 				SDL_Rect pixel;
 				pixel.x = j * m_scaleWidth;
 				pixel.y = i * m_scaleHeight;
